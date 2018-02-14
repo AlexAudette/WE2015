@@ -1,0 +1,29 @@
+EBM_SCM_MODEL\
+|-- bin\
+|   |-- main.py
+|
+|-- data_in\
+|
+|-- data_out\
+|
+|-- docs\
+|   |-- dir_structure.txt
+|-- |-- ...
+|
+|-- plots\
+|   |-- DEFAULT_MODEL_RESULTS\
+|       |-- 1_Ice_Edge_Latitude.pdf
+|       |-- ...
+|
+|-- src\
+|   |-- __init__.py
+|   |-- model.py
+|   |-- params.py
+|   |-- additions.py
+|   |-- plotting.py
+|
+|-- test\
+|   |-- __init__.py
+|   |-- ...
+|
+|-- .gitignore

@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper, left=2.2cm, top=1.5cm, right=2.2cm, bottom=1.5cm]{geometry}
+\usepackage{times, graphicx, amsmath, bm}
+\usepackage{url, multirow, color}
+\usepackage[hidelinks]{hyperref}
+\usepackage[font=small,labelfont=bf]{caption}
+
+\renewcommand{\floatpagefraction}{0.95}
+\renewcommand{\textfraction}{0}
+\renewcommand{\topfraction}{1}
+\renewcommand{\bottomfraction}{1}
+
+
+\begin{document}
+\thispagestyle{empty}
+
+\title{Numerical solution of EBM-SCM model}
+\author{Jake Aylmer}
+\maketitle
+\large
+\begin{center}
+Reference: T. Wagner and I. Eisenman, 2015: \textit{How Climate Model Complexity Influences Sea Ice Stability}
+\end{center}
+\normalsize
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Physical model}
+The surface enthalpy per unit area, $E(x,t)$ in W yr m$^{-2}$, where $x=\sin \phi$, evolves according to
+\begin{equation}\label{eq:surfaceenthalpy}
+\frac{\partial E(x,t)}{\partial t} = a(x)S(x,t) - A - B\left[T(x,t)-T_\mathrm{m}\right] + F_\mathrm{b}(x) + F(x) + D\nabla^2T(x,t)
+\end{equation}
+where $T(x,t)$ is the surface temperature, $a(x,t)$ is the co-albedo, $S(x,t)$ is insolation, $A+B\left[T(x,t)-T_\mathrm{m}\right]$ is the outgoing longwave radiation (OLR), $F_\mathrm{b}(x)$ is the ocean basal heat-flux (set to $4$ Wm$^{-2}$ by default), $F(x)$ is a prescribed forcing (set to $0$ by default) and $D\nabla^2T(x,t)$ represents atmospheric meridional transport of heat.
+
+$E(x,t)$ can be converted to sea-ice thickness $h(x,t)$ when sea-ice is present ($E(x,t)<0$) or sea surface temperature (SST) $T(x,t)$ when sea-ice is not present ($E(x,t)\geq 0$):
+\begin{equation}\label{eq:convertE}
+E(x,t) = \begin{cases}
+    -L_\mathrm{f}h(x,t) & E(x,t) < 0 \\
+    c_\mathrm{w}\left[T(x,t)-T_\mathrm{m}\right] & E(x,t) \geq 0, \\
+    \end{cases}
+\end{equation}
+where $L_\mathrm{f}$ is the latent heat of fusion of sea-water and $c_\mathrm{w}$ is the heat capacity of a unit area of ocean mixed-layer (the product of the the specific heat capacity and density of sea-water, and the ocean mixed-layer depth $H_\mathrm{ml}$).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Numerical model}
+See reference appendix A. The equations to solve numerically are:
+\begin{equation}\label{eq:solveforTg}
+\left[\frac{\partial}{\partial t} - \frac{D}{c_\mathrm{g}}\frac{\partial^2}{\partial x^2}\right]T_\mathrm{g}(x,t) = \frac{T(x,t) - T_\mathrm{g}(x,t)}{\tau_\mathrm{g}}
+\end{equation}
+and
+\begin{equation}\label{eq:solveforE}
+\frac{\partial E(x,t)}{\partial t} = a(x)S(x,t) - A - B\left[T(x,t)-T_\mathrm{m}\right] - \frac{c_\mathrm{g}}{\tau_\mathrm{g}}\left[T(x,t)-T_\mathrm{g}(x,t)\right] + F_\mathrm{b}(x) + F(x).
+\end{equation}
+
+Equation (\ref{eq:solveforTg}) is integrated forward one time-step $\Delta t$ to get $T_\mathrm{g}(x,t+\Delta t)$. The Wagner and Eisenman code provided does this using the implicit backwards in time Euler scheme. Equation (\ref{eq:solveforE}) is solved for $E(x,t+\Delta t)$. The Wagner and Eisenman code provided does this using the explicit forwards in time Euler scheme.
+
+With each time-step, $T(x,t+\Delta t)$ must also be found since $T(x,t)$ appears in both (\ref{eq:solveforTg}) and (\ref{eq:solveforE}). Firstly, if $E(x,t)>0$, then sea-ice is not present and $T(x,t)=T_\mathrm{m}+E(x,t)/c_\mathrm{w}$. If $E(x,t)<0$, then sea-ice is present and the surface temperature depends on the atmosphere-ice boundary heat-flux balance. If it is balanced by a temperature $T_0<T_\mathrm{m}$ then the surface temperature is $T_0$. If it is balanced by a temperature $T_0>T_\mathrm{m}$ then surface-melting is occuring (i.e. in this case fluxes are not balanced) and the top-of-ice surface temperature is $T_\mathrm{m}$. This leads to the condition (8) in Wagner and Eisenman 2015 which is solved for $T_0$ in order to determine the regime. In the numerical model the condition takes the form
+\begin{equation}\label{eq:fluxbalancereexpressed}
+k\frac{T_\mathrm{m}-T_0(x,t)}{h(x,t)}=-a(x)S(x,t) + A + B\left[T_0(x,t)-T_\mathrm{m}\right] - F(x) + \frac{c_\mathrm{g}}{\tau_\mathrm{g}}\left[T_0(x,t)-T_\mathrm{g}\right]
+\end{equation}
+which is re-arranged to give
+\begin{equation}\label{eq:T0condition}
+T_0(x,t) = \frac{a(x)S(x,t)-A+F(x)+\frac{c_\mathrm{g}}{\tau_\mathrm{g}}T_\mathrm{g}(x,t)+\left(\frac{k}{h(x,t)}+B\right)T_\mathrm{m}}{\frac{c_\mathrm{g}}{\tau_\mathrm{g}}+B+\frac{k}{h(x,t)}}.
+\end{equation}
+Note that (\ref{eq:T0condition}) is only solved if $E(x,t)<0$ in which case $h(x,t)=-E(x,t)/L_\mathrm{f}$.
+
+So after calculating $T_\mathrm{g}(x,t+\Delta t)$ and $E(x,t+\Delta t)$, the surface temperature profile is given by
+\begin{equation}\label{eq:surfacetempprofile}
+T(x,t+\Delta t) = \begin{cases}
+    T_\mathrm{m} + E(x,t+\Delta t)/c_\mathrm{w} & E(x,t+\Delta t)>0 \\
+    T_\mathrm{m} & E(x,t+\Delta t)<0 \hspace{1.5em} T_0 > T_\mathrm{m} \\
+    T_0 & E(x,t+\Delta t)<0 \hspace{1.5em} T_0 < T_\mathrm{m}. \\
+    \end{cases}
+\end{equation}
+
+\end{document}
