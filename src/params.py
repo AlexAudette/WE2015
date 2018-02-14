@@ -39,6 +39,6 @@ XAPFZ = .5*np.sqrt(3.) # = sin(60 deg)
 HC_WIDTH = 0.05 # (dimensionless)
 
 #---For the variable basal heat flux (erf(x) form):
-DELTA_FB = 10. # Wm^-2
+DELTA_FB = 5. # Wm^-2
 FB_ICE = 4. # Wm^-2
 FB_X_WIDTH = 0.025 # (dimensionless)

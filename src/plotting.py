@@ -13,6 +13,9 @@ def MasterFormatter():
     mpl.rcParams['mathtext.rm'] = 'sans' #maths roman font in sans-serif format
     mpl.rcParams['mathtext.it'] = 'sans:italic' #maths italic font
     mpl.rcParams['mathtext.default'] = 'it' #maths in italic by default
+    
+    mpl.rcParams['axes.titlesize'] = 20
+    mpl.rcParams['axes.labelsize'] = 18
     pass
 
 
@@ -49,24 +52,26 @@ def add_plot(ax, X, Y, col='k', lwid=1.5, lstyle='-', lab='', z=1,
         return ax
 
 
-def PlotIceEdge(time, latitude, label='', col='k'):
+def PlotIceEdge(time, latitude, label='', col='k', details=''):
     """"""
     fig, ax = plt.subplots()
     ax.plot(time, latitude, color=col, linewidth=1.5, label=label)
-    ax.set_xlabel(r'Time, $t$ (yr)', fontsize=18)
-    ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)', fontsize=18)
+    ax.set_xlabel(r'Time, $t$ (yr)')
+    ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)')
+    title = r'Seasonal cycle of ice-edge latitude $\phi_\mathrm{i}$'
+    ax.set_title(title + '\n' + details)
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 90])
+    fig.canvas.set_window_title('Ice-edge latitude')
     return FormatAxis(fig, ax)
 
 
-def PlotContour(time, latitude, variable, type='E',
-    cont_levs=np.append(np.arange(-60,20,20), np.arange(50,350,50))):
+def PlotContour(time, latitude, variable, type='E'):
     """"""
     if type=='T':
-        cont_levs=np.arange(-30,45,5)
+        cont_levs=np.arange(-30, 45, 5)
     elif type=='E':
-        cont_levs=np.arange(-50,400,50)
+        cont_levs=np.arange(-50, 400, 50)
     
     latitude, variable = FillInEndValues(latitude, variable)
     fig, ax = plt.subplots()
@@ -79,11 +84,13 @@ def PlotContour(time, latitude, variable, type='E',
         cbar.ax.set_ylabel(r'$E$ (W yr m$^{-2}$)', fontsize=16)
         ax.contour(time, latitude, variable, levels=[0], colors=('k',),
             linestyles=('-',), linewidths=(1.5,))
+        fig.canvas.set_window_title('E(x,t) contours')
     elif type=='T':
-        ax.set_title(r'Surface temperature, $T$', fontsize=20, y=1.02)
+        ax.set_title(r'Surface temperature, $T$', y=1.02)
         cbar.ax.set_ylabel(r'$T$ ($^\circ$C)', fontsize=16)
         ax.contour(time, latitude, variable, levels=[params.Tm], colors=('k',),
             linestyles=('-',), linewidths=(1.5,))
+        fig.canvas.set_window_title('T(x,t) contours')
     
     # Fake grid:
     for x in [0.2,0.4,0.6,0.8]:
@@ -91,15 +98,15 @@ def PlotContour(time, latitude, variable, type='E',
     for y in np.arange(10,90,10):
         ax.axhline(y, color=[1,1,1], linewidth=0.5)
     
-    ax.set_xlabel(r'Time, $t$ (yr)', fontsize=18)
-    ax.set_ylabel(r'Latitude, $\phi$ (deg)', fontsize=18)
+    ax.set_xlabel(r'Time, $t$ (yr)')
+    ax.set_ylabel(r'Latitude, $\phi$ (deg)')
     ax.set_xlim([0,1])
     ax.set_ylim([0,90])
     fig, ax = FormatAxis(fig, ax, minorgrid=False)
     return fig, ax
 
 
-def PlotContourWS(time, latitude, variable, time_index, type='E'):
+def PlotContourWS(time, latitude, variable, time_index, type='E', title=''):
     """"""
     fig, ax = plt.subplots()
     ax.axhline(0.0, color=[.6, .6, .6])
@@ -107,17 +114,20 @@ def PlotContourWS(time, latitude, variable, time_index, type='E'):
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
     ax.plot(latitude, variable[:,time_index[1]], color='k', linewidth=1.5,
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
-    ax.set_xlabel(r'Latitude, $\phi$ (deg)', fontsize=18)
+    ax.set_xlabel(r'Latitude, $\phi$ (deg)')
     if type == 'E':
-        ax.set_ylabel(r'Surface enthalpy, $E$ (W yr m$^{-2}$)', fontsize=18)
+        ax.set_ylabel(r'Surface enthalpy, $E$ (W yr m$^{-2}$)')
+        fig.canvas.set_window_title('E(x,t) profiles')
     elif type == 'T':
-        ax.set_ylabel(r'Surface temperature, $T$ ($^\circ$C)', fontsize=18)
+        ax.set_ylabel(r'Surface temperature, $T$ ($^\circ$C)')
+        fig.canvas.set_window_title('T(x,t) profiles')
+    ax.set_title(title, fontsize=17, y=1.02)
     ax.set_xlim([0,90])
     ax.legend(loc=0)
     return FormatAxis(fig, ax)
 
 
-def PlotIceThickness(time, latitude, enthalpy, time_index):
+def PlotIceThickness(time, latitude, enthalpy, time_index, title=''):
     """"""
     icethickness_winter = enthalpy[:,time_index[0]] / (-params.Lf)
     icethickness_summer = enthalpy[:,time_index[1]] / (-params.Lf)
@@ -129,15 +139,17 @@ def PlotIceThickness(time, latitude, enthalpy, time_index):
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
     ax.plot(latitude, icethickness_summer, color='k', linewidth=1.5,
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
-    ax.set_xlabel(r'Latitude, $\phi$ (deg)', fontsize=18)
-    ax.set_ylabel(r'Ice thickness, $h$ (m)', fontsize=18)
-    ax.set_xlim([0,90])
+    ax.set_xlabel(r'Latitude, $\phi$ (deg)')
+    ax.set_ylabel(r'Ice thickness, $h$ (m)')
+    ax.set_title(title, fontsize=17, y=1.02)
+    ax.set_xlim([0, 90])
     ax.set_ylim(ymin=0)
     ax.legend(loc=0)
+    fig.canvas.set_window_title('Ice thickness')
     return FormatAxis(fig, ax)
 
 
-def PlotHeatTransport(time, X, T, time_index, plotdeg=True):
+def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
     """"""
     xb = np.arange(1.0/len(X), 1.0, 1.0/len(X))
     DiffOp = model.DiffOp(len(X), 1.0/len(X), xb)
@@ -151,12 +163,13 @@ def PlotHeatTransport(time, X, T, time_index, plotdeg=True):
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
     ax.plot(latitude, heat_transport[:,time_index[1]], color='k',linewidth=1.5,
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
-    ax.set_xlabel(r'Latitude, $\phi$ (deg)', fontsize=18)
-    ax.set_ylabel(r'Heat transport, $D\nabla^{2}T$ (W yr m$^{-2}$)',
-        fontsize=18)
-    ax.set_xlim([0,90])
-    ax.set_ylim([-200,200])
+    ax.set_xlabel(r'Latitude, $\phi$ (deg)')
+    ax.set_ylabel(r'Heat transport, $D\nabla^{2}T$ (W yr m$^{-2}$)')
+    ax.set_title(title, fontsize=17, y=1.02)
+    ax.set_xlim([0, 90])
+    ax.set_ylim([-200, 200])
     ax.legend(loc='upper left')
+    fig.canvas.set_window_title('Heat transport')
     return FormatAxis(fig, ax)
 
 

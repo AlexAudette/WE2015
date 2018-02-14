@@ -1,14 +1,12 @@
-# Reference: "How Model Complexity Influences Sea Ice Stability",
+# Reference: "How Climate Model Complexity Influences Sea Ice Stability"
 # T.J.W. Wagner & I. Eisenman, J Clim 28,10 (2015)
-#
+# 
 # [Based on a version by Wagner and Eisenman, modified by Jake Aylmer to a 
 # modular format].
 #------------------------------------------------------------------------------
 from __future__ import division
 import numpy as np
-import numerics
-import params
-import additions as JA
+import params, numerics, additions as JA
 
 
 def DiffOp(nx, dx, xb):
@@ -109,12 +107,12 @@ def Integration(lowres=False, varyHML=False, varyFB=False):
         print 'YEAR %d/%d COMPLETE...\r' % (years+1, dur),
     
     #output only the final (converged) year
-    #      x         t_final            E_final         T_final
-    return x, np.linspace(0,1,100), E100[:,-101:-1], T100[:,-101:-1]
+    #            t_final         x      E_final          T_final
+    return np.linspace(0,1,100), x, E100[:,-101:-1], T100[:,-101:-1]
 
 
 def xi_seasonal(E, x):
-    """Compute seasonal ice edge from t, E."""
+    """Compute seasonal ice edge from E."""
     xi = np.zeros(len(E[0]))
     for j in xrange(0,len(E[0])):
         if any(E[:,j]<0):

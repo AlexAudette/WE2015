@@ -1,5 +1,6 @@
 ##SPECIFIC##
 docs/*.pdf
+docs/*/*.pdf
 
 
 ##GENERAL##
