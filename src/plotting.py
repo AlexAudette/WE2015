@@ -16,6 +16,8 @@ def MasterFormatter():
     
     mpl.rcParams['axes.titlesize'] = 20
     mpl.rcParams['axes.labelsize'] = 18
+    
+    mpl.rcParams['savefig.format'] = 'pdf'
     pass
 
 
