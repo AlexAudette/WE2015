@@ -59,7 +59,7 @@ def PlotIceEdge(time, latitude, label='', col='k', details=''):
     ax.set_xlabel(r'Time, $t$ (yr)')
     ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)')
     title = r'Seasonal cycle of ice-edge latitude $\phi_\mathrm{i}$'
-    ax.set_title(title + '\n' + details)
+    ax.set_title(title + '\n' + details, y=1.02)
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 90])
     fig.canvas.set_window_title('Ice-edge latitude')
@@ -127,7 +127,7 @@ def PlotContourWS(time, latitude, variable, time_index, type='E', title=''):
     return FormatAxis(fig, ax)
 
 
-def PlotIceThickness(time, latitude, enthalpy, time_index, title=''):
+def PlotIceThickness(time, latitude, enthalpy, time_index, title='', col='k'):
     """"""
     icethickness_winter = enthalpy[:,time_index[0]] / (-params.Lf)
     icethickness_summer = enthalpy[:,time_index[1]] / (-params.Lf)
@@ -135,9 +135,9 @@ def PlotIceThickness(time, latitude, enthalpy, time_index, title=''):
     icethickness_summer = [h if h>=0 else 0 for h in icethickness_summer]
     
     fig, ax = plt.subplots()
-    ax.plot(latitude, icethickness_winter, color='k', linewidth=1.5,
+    ax.plot(latitude, icethickness_winter, color=col, linewidth=1.5,
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
-    ax.plot(latitude, icethickness_summer, color='k', linewidth=1.5,
+    ax.plot(latitude, icethickness_summer, color=col, linewidth=1.5,
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
     ax.set_xlabel(r'Latitude, $\phi$ (deg)')
     ax.set_ylabel(r'Ice thickness, $h$ (m)')

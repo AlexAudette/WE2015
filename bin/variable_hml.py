@@ -2,53 +2,46 @@ from __future__ import division
 import sys, os, numpy as np, matplotlib.pyplot as plt
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src import params, model as WE, additions as JA, plotting as pl
+from src import file_io as filing
 pl.MasterFormatter()
 
-def main(lowres=True, usesaved=False, times=[22, 73]):
+def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False):
+    """Bla bla bla...
     
-    #### GET DEFAULT PLOT DATA: ####
-    basefilename = os.path.join(os.path.dirname(__file__), '..', 'data_out',
-        r'DEFAULT_PLOT_DATA_HR')
-    try:
-        Edef = np.genfromtxt(basefilename + r'_E.txt')
-        Tdef = np.genfromtxt(basefilename + r'_T.txt')
-    except:
-        raise Exception('Need to run DEFAULT_MODEL.py first.')
-    tdef = Edef[0,1:]
-    xdef = Edef[1:,0]
-    Edef = Edef[1:,1:]
-    xidef_deg = np.degrees(np.arcsin(WE.xi_seasonal(Edef, xdef)))
-    ################################
-    
-    basefilename = os.path.join(os.path.dirname(__file__), '..', 'data_out',
-        r'VARIABLE_HML_PLOT_DATA_' + (r'LR' if lowres else r'HR'))
-    
+    --Args--
+    lowres:   boolean; if True, uses low resolution numerical parameters.
+    usesaved: boolean; if True, attempts to load relevant saved data rather
+              than calculating from scratch.
+    times:    len-2 array; time *indexes* for winter and summer plots,
+              respectively.
+    savefigs: boolean; if True, saves figures (*.pdf) to the plots sub-
+              directory (will check before over-writing).
+    """
     if usesaved:
-        E = np.genfromtxt(basefilename + r'_E.txt')
-        T = np.genfromtxt(basefilename + r'_T.txt')
-        t = E[0,1:] # first row is t-coords,
-        x = E[1:,0] # first col is x-coords,
-        E = E[1:,1:] # rest is E(x,t).
+        t, x, E, T = filing.OpenData('DAT_constant_Fb=%.1f_%.1f_Hml_%.1f' % (
+            params.Fb, params.HML_ICE, params.HML_OCEAN) +
+            ('_LR' if lowres else '_HR') )
     else:
-        x, t, E, T = WE.Integration(lowres, varyHML=True)
-        np.savetxt(basefilename + r'_T.txt', T)
-        array_to_save = np.zeros( (len(x)+1, len(t)+1) )
-        array_to_save[1:,1:] = E
-        array_to_save[0,1:] = t
-        array_to_save[1:,0] = x
-        np.savetxt(basefilename+ r'_E.txt', array_to_save)
+        t, x, E, T = WE.Integration(lowres, varyHML=True, varyFB=False)
+        filing.SaveData(t, x, E, T, 'DAT_constant_Fb=%.1f_%.1f_Hml_%.1f' % (
+            params.Fb, params.HML_ICE, params.HML_OCEAN) +
+            ('_LR' if lowres else '_HR') )
+    
+    tdef,xdef, Edef, Tdef = filing.OpenData('DAT_constFb=4.0_constHML=75.0_HR')
     
     xi_deg = np.degrees(np.arcsin(WE.xi_seasonal(E, x)))
+    xidef_deg = np.degrees(np.arcsin(WE.xi_seasonal(Edef, xdef)))
     
     # Plot the ice-edge seasonal cycle:
-    f1,a1 = pl.PlotIceEdge(tdef, xidef_deg, col='grey', label='Default model')
-    a1.plot(t, xi_deg, color='b', linewidth=1.5,
-        label=r'Variable $H_\mathrm{ml}$: $%.1f < H_\mathrm{ml}$ /m $< %.1f$'%(
-        params.HML_ICE, params.HML_OCEAN))
+    details = r'(variable $H_\mathrm{ml}$, constant'
+    details += r' $F_\mathrm{b}=%.1f$ m)' % params.Fb
+    f1, a1 = pl.PlotIceEdge(t, xi_deg, label=r'Variable $H_\mathrm{ml}$',
+        details=details)
+    a1.plot(tdef, xidef_deg, color='grey', label='Constant $H_\mathrm{ml}$',
+        linewidth=1.5)
     a1.axvline(t[times[0]], color='k')
     a1.axvline(t[times[1]], color='k', linestyle='--')
-    a1.set_title('Seasonal ice-edge latitude', fontsize=20, y=1.02)
-    a1.legend(loc='lower left', fontsize=14)
+    a1.legend(loc=0, fontsize=14)
     f1.tight_layout()
     
     # Plot E(x, t) contour map:
@@ -56,32 +49,38 @@ def main(lowres=True, usesaved=False, times=[22, 73]):
     
     # Plot T(x, t) contour map:
     f3, a3 = pl.PlotContour(t, np.degrees(np.arcsin(x)), T, type='T')
-    f3.tight_layout()
-    
-    # Plot T(x) for winter and summer:
-    f4, a4 = pl.PlotContourWS(t, np.degrees(np.arcsin(x)), T, times, 'T')
     
     # Plot E(x) for winter and summer:
-    f5, a5 = pl.PlotContourWS(t, np.degrees(np.arcsin(x)), E, times, 'E')
+    title = r'$%.1f<H_\mathrm{ml}(x,t)$ /m $<%.1f$, $F_\mathrm{b}(x,t)=%.1f$ Wm$^{-2}$' %(
+        params.HML_ICE, params.HML_OCEAN, params.Fb)
+    f4, a4 = pl.PlotContourWS(t, np.degrees(np.arcsin(x)), E, times, 'E', title)
+    
+    # Plot T(x) for winter and summer:
+    f5, a5 = pl.PlotContourWS(t, np.degrees(np.arcsin(x)), T, times, 'T', title)
     
     # Plot h(x) for winter and summer:
-    f6, a6 = pl.PlotIceThickness(t, np.degrees(np.arcsin(x)), E, times)
+    f6, a6 = pl.PlotIceThickness(t, np.degrees(np.arcsin(x)), E, times, title)
+    #### Add plot for constant Fb and constant Hml model manually:
+    h_def_win = Edef[:,times[0]]/-params.Lf
+    h_def_sum = Edef[:,times[1]]/-params.Lf
+    h_def_win = [h if h>=0 else 0 for h in h_def_win]
+    h_def_sum = [h if h>=0 else 0 for h in h_def_sum]
+    a6.plot(np.degrees(np.arcsin(xdef)), h_def_win, color='grey', linewidth=1.5)
+    a6.plot(np.degrees(np.arcsin(xdef)), h_def_sum, color='grey', linewidth=1.5,
+        linestyle='--')
     
     # Plot the heat transport D(del^2)T(x,t) for winter and summer:
-    f7, a7 = pl.PlotHeatTransport(t, x, T, times)
+    f7, a7 = pl.PlotHeatTransport(t, x, T, times, title=title)
     
-    for fig in [f1, f2, f3, f4, f5, f6, f7]:
+    figures = [f1, f2, f3, f4, f5, f6, f7]
+    if savefigs:
+        filing.SaveFigures(figures, '%.1f_Hml_%.1f_constant_Fb=%.1f'%(
+            params.HML_ICE, params.HML_OCEAN, params.Fb))
+    for fig in figures:
         fig.show()
     pass
 
 
 if __name__ == '__main__':
-    # sys.argv[0] == r'\..\bin\default_model.py'
-    # sys.argv[1] == lowres
-    # sys.argv[2] == usesaved
-    if len(sys.argv) == 2:
-        main(lowres=sys.argv[1]=='lowres')
-    elif len(sys.argv) == 3:
-        main(lowres=sys.argv[1]=='lowres', usesaved=sys.argv[2]=='usesaved')
-    else:
-        main()
+    main(lowres=('lowres' in sys.argv), usesaved=('usesaved' in sys.argv),
+        savefigs=('savefigs' in sys.argv))

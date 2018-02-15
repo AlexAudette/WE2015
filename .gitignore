@@ -1,7 +1,7 @@
 ##SPECIFIC##
 docs/*.pdf
 docs/*/*.pdf
-
+*TO_DO.txt
 
 ##GENERAL##
 *.pyc

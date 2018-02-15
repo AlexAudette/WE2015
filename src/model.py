@@ -72,7 +72,7 @@ def Integration(lowres=False, varyHML=False, varyFB=False):
     M = params.B + cg_tau
     kLf = params.k*params.Lf
     
-    #cw = JA.HeatCapacity(x) if varyCW else params.cw
+    cw = JA.HeatCapacity(x) if varyHML else params.cw
     
     #Set up output arrays, saving 100 timesteps/year
     E100 = np.zeros([nx, dur*100]); T100 = np.zeros([nx, dur*100])
@@ -92,7 +92,7 @@ def Integration(lowres=False, varyHML=False, varyFB=False):
             C = alpha*S[i,:] + cg_tau*Tg-params.A
             
             xi = xi_seasonal(np.array([[e] for e in E]), x)[0]
-            cw = JA.HeatCapacityInteractive(x, xi) if varyHML else params.cw
+            #cw = JA.HeatCapacityInteractive(x, xi) if varyHML else params.cw
             
             T0 = C/(M - kLf/E) #WE15, eq.A3
             T = (E/cw)*(E>=0)+T0*(E<0)*(T0<0) #WE15, eq.9

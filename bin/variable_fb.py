@@ -60,6 +60,14 @@ def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False):
     
     # Plot h(x) for winter and summer:
     f6, a6 = pl.PlotIceThickness(t, np.degrees(np.arcsin(x)), E, times, title)
+    #### Add plot for constant Fb and constant Hml model manually:
+    h_def_win = Edef[:,times[0]]/-params.Lf
+    h_def_sum = Edef[:,times[1]]/-params.Lf
+    h_def_win = [h if h>=0 else 0 for h in h_def_win]
+    h_def_sum = [h if h>=0 else 0 for h in h_def_sum]
+    a6.plot(np.degrees(np.arcsin(xdef)), h_def_win, color='grey', linewidth=1.5)
+    a6.plot(np.degrees(np.arcsin(xdef)), h_def_sum, color='grey', linewidth=1.5,
+        linestyle='--')
     
     # Plot the heat transport D(del^2)T(x,t) for winter and summer:
     f7, a7 = pl.PlotHeatTransport(t, x, T, times, title=title)
