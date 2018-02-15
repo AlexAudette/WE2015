@@ -97,7 +97,8 @@ def Integration(lowres=False, varyHML=False, varyFB=False):
             T0 = C/(M - kLf/E) #WE15, eq.A3
             T = (E/cw)*(E>=0)+T0*(E<0)*(T0<0) #WE15, eq.9
             
-            Fb = JA.BasalFluxInteractive(x, xi) if varyFB else params.Fb
+            #Fb = JA.BasalFluxInteractive(x, xi) if varyFB else params.Fb
+            Fb = JA.BasalFluxTimeDependent(x, i*dt, xi)
             
             E = E+dt*(C-M*T+Fb) #WE15, eq.A2
             

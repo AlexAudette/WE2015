@@ -1,5 +1,6 @@
 from __future__ import division
 import params
+import numpy as np
 import scipy.special as sp
 
 def HeatCapacity(x):
@@ -25,5 +26,14 @@ def BasalFluxInteractive(x, xi):
 
 def BasalFlux(x):
     """Form of basal heat flux based on erf(x) smoothed by an amount HFC_WIDTH
-    about x=XAPFZ, the position of the anarctic polar frontal zone."""
+    about x=XAPFZ, the position of the antarctic polar frontal zone."""
     return .5*(2*params.FB_ICE + params.DELTA_FB) - .5*params.DELTA_FB*sp.erf((x-params.XAPFZ)/params.HC_WIDTH)
+
+
+def BasalFluxTimeDependent(x, t, xi):
+    """"""
+    Fb_i = 2.0 + 2.0*np.cos( np.pi*(t-.74)/.52 )
+    Fb_o = 7.5 + 2.5*np.cos( np.pi*(t-.74)/.52 )
+    
+    Fb = .5*(Fb_i+Fb_o) + .5*(Fb_i-Fb_o)*sp.erf((x-xi)/params.FB_X_WIDTH)
+    return Fb
