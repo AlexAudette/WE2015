@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from src import params, model as WE, additions as JA
+from src import params, model as WE, additions as JA, file_io as filing
 
 from src import plotting as pl
 pl.MasterFormatter()
@@ -55,34 +55,50 @@ def main2():
     pass
 
 
-def main3(xi=0.8):
+def main3():
     """Animate the form of F_b with (crude) seasonal cycle."""
-    x = np.arange(0.0, 1.0001, 0.001)
-    xdeg = np.degrees(np.arcsin(x))
-    t = np.arange(0.0, 1.0001, 0.01)
-    FB = np.zeros( (len(t), len(x)) )
-    for i in xrange(len(t)):
-        FB[i] = JA.BasalFluxTimeDependent(x, t[i], xi)
-    print FB
     
-    fig, ax = plt.subplots()
+    ### Import data for ice-edge latitude:
+    tdef, xdef, Edef = filing.OpenData('DAT_constFb=4.0_constHML=75.0_HR')[0:3]
+    xideg_def = np.degrees(np.arcsin(WE.xi_seasonal(Edef, xdef)))
+    
+    t, x_coords, E = filing.OpenData('DAT_t_DEPENDENCE')[0:3]
+    x = WE.xi_seasonal(E, x_coords)
+    xdeg = np.degrees(np.arcsin(x))
+    FB = np.zeros( (len(t), len(x_coords)) )
+    for i in xrange(len(t)):
+        FB[i] = JA.BasalFluxTimeDependent(x_coords, t[i], x[i])
+    
+    fig, (ax1, ax2) = plt.subplots(1,2)
     
     ### Fixed plot elements:
-    ax.axvline(np.degrees(np.arcsin(xi)), color='k', linestyle='--')
-    ax.set_xlabel(r'$\phi$ (deg)')
-    ax.set_ylabel(r'$F_\mathrm{b}(x,t)$ (Wm$^{-2}$)')
-    ax.set_title(r'$t = %.2f$' % t[0])
-    ax.set_xlim([0,90])
-    ax.set_ylim([0,10])
-    fig, ax = pl.FormatAxis(fig, ax)
+    ax1.set_xlabel(r'$\phi$ (deg)')
+    ax1.set_ylabel(r'$F_\mathrm{b}(x,t)$ (Wm$^{-2}$)')
+    ax1.set_xlim([0,90])
+    ax1.set_ylim([0,10])
+    fig, ax1 = pl.FormatAxis(fig, ax1)
+    
+    ax2.plot(tdef, xideg_def, color='grey', linewidth=1.5)
+    ax2.plot(t, xdeg, color='k', linewidth=1.5)
+    ax2.set_xlabel(r'Time, $t$ (yr)')
+    ax2.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)')
+    ax2.set_title(r'Seasonal ice-edge latitude')
+    ax2.set_xlim([0,1])
+    ax2.set_ylim([0,90])
     
     ### Initial frame plot:
-    line, = ax.plot(xdeg, FB[0], color='k', linewidth=1.5,
-        label=r'$t=%.2f$ yr' % t[0])
+    ax1.set_title(r'$t = %.2f$' % t[0])
+    line, = ax1.plot(np.degrees(np.arcsin(x_coords)), FB[0], color='k',
+        linewidth=1.5, label=r'$t=%.2f$ yr' % t[0])
+    time, = ax2.plot(np.array([t[0],t[0]]), np.array([0,90]), color='k',
+        linestyle='--')
+    fig, ax1 = pl.FormatAxis(fig, ax1)
+    fig, ax2 = pl.FormatAxis(fig, ax2)
     
     def animate(i):
         line.set_ydata(FB[i])
-        ax.set_title(r'$t=%.2f$ yr' % t[i])
+        time.set_xdata(np.array([t[i], t[i]]))
+        ax1.set_title(r'$t=%.2f$ yr' % t[i])
         return line
     
     ani = animation.FuncAnimation(fig, animate, np.arange(1,len(t)),
