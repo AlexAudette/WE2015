@@ -13,10 +13,8 @@ def MasterFormatter():
     mpl.rcParams['mathtext.rm'] = 'sans' #maths roman font in sans-serif format
     mpl.rcParams['mathtext.it'] = 'sans:italic' #maths italic font
     mpl.rcParams['mathtext.default'] = 'it' #maths in italic by default
-    
     mpl.rcParams['axes.titlesize'] = 20
     mpl.rcParams['axes.labelsize'] = 18
-    
     mpl.rcParams['savefig.format'] = 'pdf'
     pass
 

@@ -3,7 +3,6 @@ import sys, os, numpy as np, matplotlib.pyplot as plt
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src import params, model as WE, additions as JA, plotting as pl
 from src import file_io as filing
-pl.MasterFormatter()
 
 def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False):
     """Run the model and generate all plots for the standard model as described
@@ -71,6 +70,67 @@ def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False):
     pass
 
 
+def Vary_Constant_Fb(quickly=False, lowres=True, times=[22, 73], savedata=True,
+    usesaved=False):
+    """"""
+    if quickly:
+        fb = np.array([0.0, 4.0, 10.0])
+    else:
+        fb = np.arange(0.0, 10.001, 1.0)
+    
+    if usesaved:
+        datadir = os.path.join(os.path.dirname(__file__), '..', 'data_out')
+        filename = 'default_vary_const_fb' + ('_lowres' if lowres else '') + (
+            '_quickly' if quickly else '')
+        array = np.genfromtxt(os.path.join(datadir, filename + '.txt'))
+        fb = array[0]
+        phi_i_summer = array[1]
+        phi_i_mean = array[2]
+        phi_i_winter = array[3]
+    
+    else:
+        phi_i_winter = np.zeros(len(fb))
+        phi_i_summer = np.zeros(len(fb))
+        phi_i_mean = np.zeros(len(fb))
+        for i in xrange(len(fb)):
+            print "Calculating %i of %i..." % (i+1, len(fb))
+            params.Fb = fb[i]
+            t, x, E, T = WE.Integration(lowres, varyHML=False, varyFB=False)
+            phi_i_t = np.degrees(np.arcsin(WE.xi_seasonal(E, x)))
+            phi_i_winter[i] = phi_i_t[times[0]]
+            phi_i_summer[i] = phi_i_t[times[1]]
+            phi_i_mean[i] = np.mean(phi_i_t)
+        
+        if savedata:
+            array_to_save = np.array([fb, phi_i_summer, phi_i_mean, phi_i_winter])
+            datadir = os.path.join(os.path.dirname(__file__), '..', 'data_out')
+            filename = 'default_vary_const_fb' + ('_lowres' if lowres else '') + (
+                '_quickly' if quickly else '')
+            np.savetxt(os.path.join(datadir, filename + '.txt'), array_to_save)
+    
+    fig, ax = plt.subplots()
+    ax.axvline(4.0, linestyle='--', linewidth=1.5, color='k')
+    ax.fill_between(fb, phi_i_summer, phi_i_winter, color='grey', alpha=0.2) 
+    ax.plot(fb, phi_i_summer, color='r', linewidth=1.5, label='Summer')
+    ax.plot(fb, phi_i_mean, color=[.5,.5,.5], linestyle=':', linewidth=1.5,
+        label='Annual mean')
+    ax.plot(fb, phi_i_winter, color='b', linewidth=1.5, label='Winter')
+    ax.set_xlabel(r'$F_\mathrm{b}$ (Wm$^{-2}$)')
+    ax.set_ylabel(r'$\phi_\mathrm{i}$ (deg)')
+    ax.legend(loc='upper left', fontsize=14)
+    fig, ax = pl.FormatAxis(fig, ax, minorgrid=False)
+    
+    fig.show()
+    
+    pass
+
+
 if __name__ == '__main__':
-    main(lowres=('lowres' in sys.argv), usesaved=('usesaved' in sys.argv),
-        savefigs=('savefigs' in sys.argv))
+    pl.MasterFormatter()
+    if 'Vary_Constant_Fb' in sys.argv:
+        Vary_Constant_Fb(quickly=('quickly' in sys.argv),
+            lowres=('lowres' in sys.argv), savedata=('savedata' in sys.argv),
+            usesaved=('usesaved' in sys.argv))
+    else:
+        main(lowres=('lowres' in sys.argv), usesaved=('usesaved' in sys.argv),
+            savefigs=('savefigs' in sys.argv))

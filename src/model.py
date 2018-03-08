@@ -6,7 +6,7 @@
 #------------------------------------------------------------------------------
 from __future__ import division
 import numpy as np
-import params, numerics, additions as JA
+import params, additions as JA
 
 
 def DiffOp(nx, dx, xb):
@@ -43,13 +43,8 @@ def InitialConditions(x, varyHML=False):
     return T, Tg, E
 
 
-def WE_A2(E, C, M, Fb, cw):
-    T0 = C/(M - params.k*params.Lf/E) #WE15, eq.A3
-    T = (E/cw)*(E>=0)+T0*(E<0)*(T0<0) #WE15, eq.9
-    return C-M*T+Fb
-
-
-def Integration(lowres=False, varyHML=False, varyFB=False):
+def Integration(lowres=False, varyFB=False, varyHML=False, interactiveFB=False,
+    interactiveHML=False):
     """Integration (see WE15_NumericIntegration.pdf)"""
     
     nx = params.NX_LOWRES if lowres else params.NX_HIGHRES
@@ -73,6 +68,7 @@ def Integration(lowres=False, varyHML=False, varyFB=False):
     kLf = params.k*params.Lf
     
     cw = JA.HeatCapacity(x) if varyHML else params.cw
+    Fb = JA.BasalFlux(x) if varyFB else params.Fb
     
     #Set up output arrays, saving 100 timesteps/year
     E100 = np.zeros([nx, dur*100]); T100 = np.zeros([nx, dur*100])
@@ -92,13 +88,14 @@ def Integration(lowres=False, varyHML=False, varyFB=False):
             C = alpha*S[i,:] + cg_tau*Tg-params.A
             
             xi = xi_seasonal(np.array([[e] for e in E]), x)[0]
-            #cw = JA.HeatCapacityInteractive(x, xi) if varyHML else params.cw
+            if interactiveHML:
+                cw = JA.HeatCapacityInteractive(x, xi)
             
             T0 = C/(M - kLf/E) #WE15, eq.A3
             T = (E/cw)*(E>=0)+T0*(E<0)*(T0<0) #WE15, eq.9
             
-            #Fb = JA.BasalFluxInteractive(x, xi) if varyFB else params.Fb
-            Fb = JA.BasalFluxTimeDependent(x, i*dt, xi)
+            if interactiveFB:
+                Fb = JA.BasalFluxInteractive(x, xi)
             
             E = E+dt*(C-M*T+Fb) #WE15, eq.A2
             
@@ -113,12 +110,13 @@ def Integration(lowres=False, varyHML=False, varyFB=False):
 
 
 def xi_seasonal(E, x):
-    """Compute seasonal ice edge from E."""
+    """Return the sin(lat) of ice-edge (defined as where E is first negative)
+    as a function of time."""
     xi = np.zeros(len(E[0]))
     for j in xrange(0,len(E[0])):
         if any(E[:,j]<0):
             ice = np.where(E[:,j]<0)[0]
             xi[j] = 0. if ice[0]==0 else x[ice[0]]
         else:
-            xi[j] = 1. # JA: ice-free
+            xi[j] = 1. # ice-free
     return xi

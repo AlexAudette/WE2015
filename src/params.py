@@ -18,7 +18,7 @@ k = 2. #sea ice thermal conductivity (W m^-2 K^-1)
 Lf = 9. #sea ice latent heat of fusion (W yr m^-3)
 cg = .01*cw #ghost layer heat capacity(W yr m^-2 K^-1)
 tau = 1.e-5 #ghost layer coupling timescale (yr)
-Tm = 0 #melting temperature of ice (deg C)
+Tm = 0. #melting temperature of ice (deg C)
 
 
 ##### NUMERICAL SOLUTION DEFAULTS #####
@@ -26,7 +26,7 @@ NX_LOWRES = 100 #number of x-grid points for low-resolution run
 NX_HIGHRES = 600 # "" "" for high-resolution run (default model takes 10min)
 NT_LOWRES = 1000 #number of time-steps for low-resolution run
 NT_HIGHRES = 1000 # "" "" for high-resolution run
-DURATION_LOWRES = 30 #no. of years to intergrate forward (low resolution run)
+DURATION_LOWRES = 30 #no. of years to integrate forward (low resolution run)
 DURATION_HIGHRES = 30 # "" "" (high resolution run)
 
 
@@ -39,6 +39,6 @@ XAPFZ = .5*np.sqrt(2.)#.5*np.sqrt(3.) # = sin(60 deg)
 HC_WIDTH = 0.05 # (dimensionless)
 
 #---For the variable basal heat flux (erf(x) form):
-DELTA_FB = 6. # Wm^-2
+DELTA_FB = 10. # Wm^-2
 FB_ICE = 4. # Wm^-2
-FB_X_WIDTH = 0.025 # (dimensionless)
+FB_X_WIDTH = 0.05 # (dimensionless)

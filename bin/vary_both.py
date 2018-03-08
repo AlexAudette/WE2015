@@ -3,9 +3,9 @@ import sys, os, numpy as np, matplotlib.pyplot as plt
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src import params, model as WE, additions as JA, plotting as pl
 from src import file_io as filing
-pl.MasterFormatter()
 
-def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False):
+def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False,
+    interactive=[False, False]):
     """Bla bla bla...
     
     --Args--
@@ -16,16 +16,23 @@ def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False):
               respectively.
     savefigs: boolean; if True, saves figures (*.pdf) to the plots sub-
               directory (will check before over-writing).
+    interactive: len-2 array of booleans; whether to use interactive form of
+                 Fb(x, xi) [0] and Hml(x, xi) [1].
     """
     if usesaved:
         t, x, E, T = filing.OpenData('DAT_%.1f_Fb_%.1f_%.1f_Hml_%.1f' % (
             params.FB_ICE, params.FB_ICE+params.DELTA_FB, params.HML_ICE,
-            params.HML_OCEAN) + ('_LR' if lowres else '_HR') )
+            params.HML_OCEAN) + ('_LR' if lowres else '_HR') + (
+            '_interactiveFb' if interactive[0] else '') + (
+            '_interactiveHml' if interactive[1] else '') )
     else:
-        t, x, E, T = WE.Integration(lowres, varyHML=True, varyFB=True)
+        t, x, E, T = WE.Integration(lowres, varyHML=True, varyFB=True,
+            interactiveFB=interactive[0], interactiveHML=interactive[1])
         filing.SaveData(t, x, E, T, 'DAT_%.1f_Fb_%.1f_%.1f_Hml_%.1f' % (
             params.FB_ICE, params.FB_ICE+params.DELTA_FB, params.HML_ICE,
-            params.HML_OCEAN) + ('_LR' if lowres else '_HR') )
+            params.HML_OCEAN) + ('_LR' if lowres else '_HR') + (
+            '_interactiveFb' if interactive[0] else '') + (
+            '_interactiveHml' if interactive[1] else '') )
     
     tdef,xdef, Edef, Tdef = filing.OpenData('DAT_constFb=4.0_constHML=75.0_HR')
     
@@ -70,14 +77,18 @@ def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False):
     
     figures = [f1, f2, f3, f4, f5, f6, f7]
     if savefigs:
-        filing.SaveFigures(figures, '%.1f_Fb_%.1f_%.1f_Hml_%.1f'%(
-            params.FB_ICE, params.FB_ICE+params.DELTA_FB, params.HML_ICE,
-            params.HML_OCEAN))
+        dirname = '%.1f_Fb_%.1f_%.1f_Hml_%.1f'%(params.FB_ICE,
+            params.FB_ICE+params.DELTA_FB, params.HML_ICE, params.HML_OCEAN) +(
+            '_interactiveFb' if interactive[0] else '') + (
+            '_interactiveHml' if interactive[1] else '')
+        filing.SaveFigures(figures, dirname)
     for fig in figures:
         fig.show()
     pass
 
 
 if __name__ == '__main__':
+    pl.MasterFormatter()
     main(lowres=('lowres' in sys.argv), usesaved=('usesaved' in sys.argv),
-        savefigs=('savefigs' in sys.argv))
+        savefigs=('savefigs' in sys.argv), interactive=[
+        'interactiveFb' in sys.argv, 'interactiveHml' in sys.argv])
