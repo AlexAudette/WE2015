@@ -164,7 +164,7 @@ def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
     ax.plot(latitude, heat_transport[:,time_index[1]], color='k',linewidth=1.5,
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
     ax.set_xlabel(r'Latitude, $\phi$ (deg)')
-    ax.set_ylabel(r'Heat transport, $D\nabla^{2}T$ (W yr m$^{-2}$)')
+    ax.set_ylabel(r'Heat transport, $D\nabla^{2}T$ (W m$^{-2}$)')
     ax.set_title(title, fontsize=17, y=1.02)
     ax.set_xlim([0, 90])
     ax.set_ylim([-200, 200])
