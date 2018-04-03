@@ -109,14 +109,14 @@ def Vary_Constant_Fb(quickly=False, lowres=True, times=[22, 73], savedata=True,
             np.savetxt(os.path.join(datadir, filename + '.txt'), array_to_save)
     
     fig, ax = plt.subplots()
-    ax.axvline(4.0, linestyle='--', linewidth=1.5, color='k')
-    ax.fill_between(fb, phi_i_summer, phi_i_winter, color='grey', alpha=0.2) 
+    ax.fill_between(fb, phi_i_summer, phi_i_winter, color=[.9,.9,.9]) 
     ax.plot(fb, phi_i_summer, color='r', linewidth=1.5, label='Summer')
     ax.plot(fb, phi_i_mean, color=[.5,.5,.5], linestyle=':', linewidth=1.5,
         label='Annual mean')
     ax.plot(fb, phi_i_winter, color='b', linewidth=1.5, label='Winter')
-    ax.set_xlabel(r'$F_\mathrm{b}$ (Wm$^{-2}$)')
-    ax.set_ylabel(r'$\phi_\mathrm{i}$ (deg)')
+    ax.axvline(4.0, linestyle='--', linewidth=1.5, color='k')
+    ax.set_xlabel(r'Ocean upward heat flux, $F_\mathrm{b}$ (Wm$^{-2}$)')
+    ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)')
     ax.legend(loc='upper left', fontsize=14)
     fig, ax = pl.FormatAxis(fig, ax, minorgrid=False)
     
