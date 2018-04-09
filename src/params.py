@@ -19,6 +19,7 @@ Lf = 9. #sea ice latent heat of fusion (W yr m^-3)
 cg = .01*cw #ghost layer heat capacity(W yr m^-2 K^-1)
 tau = 1.e-5 #ghost layer coupling timescale (yr)
 Tm = 0. #melting temperature of ice (deg C)
+RE = 6371.0E3 #mean radius of Earth [m]
 
 
 ##### NUMERICAL SOLUTION DEFAULTS #####
