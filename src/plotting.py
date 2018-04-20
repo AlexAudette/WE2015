@@ -5,20 +5,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
-def MasterFormatter():
-    """"""
-    mpl.rcParams['font.sans-serif'] = 'Calibri' #set the font for sans-serif style
-    mpl.rcParams['font.family'] = 'sans-serif' #choose the sans-serif font style
-    mpl.rcParams['mathtext.fontset'] = 'custom' #allow customisation of maths font
-    mpl.rcParams['mathtext.rm'] = 'sans' #maths roman font in sans-serif format
-    mpl.rcParams['mathtext.it'] = 'sans:italic' #maths italic font
-    mpl.rcParams['mathtext.default'] = 'it' #maths in italic by default
-    mpl.rcParams['axes.titlesize'] = 20
-    mpl.rcParams['axes.labelsize'] = 18
-    mpl.rcParams['savefig.format'] = 'pdf'
-    pass
-
-
 def FillInEndValues(lats, var):
     # This is because WE original numerical method uses centred grid points
     # and when converting back to degrees, misses a large chunk at the pole and
@@ -55,7 +41,7 @@ def add_plot(ax, X, Y, col='k', lwid=1.5, lstyle='-', lab='', z=1,
 def PlotIceEdge(time, latitude, label='', col='k', details=''):
     """"""
     fig, ax = plt.subplots()
-    ax.plot(time, latitude, color=col, linewidth=1.5, label=label)
+    ax.plot(time, latitude, color=col, label=label)
     ax.set_xlabel(r'Time, $t$ (yr)')
     ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)')
     title = r'Seasonal cycle of ice-edge latitude $\phi_\mathrm{i}$'
@@ -83,7 +69,7 @@ def PlotContour(time, latitude, variable, type='E'):
         ax.set_title(r'Surface enthalpy, $E$', fontsize=20, y=1.02)
         cbar.ax.set_ylabel(r'$E$ (W yr m$^{-2}$)', fontsize=16)
         ax.contour(time, latitude, variable, levels=[0], colors=('k',),
-            linestyles=('-',), linewidths=(1.5,))
+            linestyles=('-',))
         fig.canvas.set_window_title('E(x,t) contours')
     elif type=='T':
         ax.set_title(r'Surface temperature, $T$', y=1.02)
@@ -110,9 +96,9 @@ def PlotContourWS(time, latitude, variable, time_index, type='E', title=''):
     """"""
     fig, ax = plt.subplots()
     ax.axhline(0.0, color=[.6, .6, .6])
-    ax.plot(latitude, variable[:,time_index[0]], color='k', linewidth=1.5,
+    ax.plot(latitude, variable[:,time_index[0]], color='k',
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
-    ax.plot(latitude, variable[:,time_index[1]], color='k', linewidth=1.5,
+    ax.plot(latitude, variable[:,time_index[1]], color='k',
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
     ax.set_xlabel(r'Latitude, $\phi$ (deg)')
     if type == 'E':
@@ -135,9 +121,9 @@ def PlotIceThickness(time, latitude, enthalpy, time_index, title='', col='k'):
     icethickness_summer = [h if h>=0 else 0 for h in icethickness_summer]
     
     fig, ax = plt.subplots()
-    ax.plot(latitude, icethickness_winter, color=col, linewidth=1.5,
+    ax.plot(latitude, icethickness_winter, color=col,
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
-    ax.plot(latitude, icethickness_summer, color=col, linewidth=1.5,
+    ax.plot(latitude, icethickness_summer, color=col,
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
     ax.set_xlabel(r'Latitude, $\phi$ (deg)')
     ax.set_ylabel(r'Ice thickness, $h$ (m)')
@@ -159,9 +145,9 @@ def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
     
     fig, ax = plt.subplots()
     ax.axhline(0.0, color=[.6, .6, .6])
-    ax.plot(latitude, heat_transport[:,time_index[0]], color='k',linewidth=1.5,
+    ax.plot(latitude, heat_transport[:,time_index[0]], color='k',
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
-    ax.plot(latitude, heat_transport[:,time_index[1]], color='k',linewidth=1.5,
+    ax.plot(latitude, heat_transport[:,time_index[1]], color='k',
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
     ax.set_xlabel(r'Latitude, $\phi$ (deg)')
     ax.set_ylabel(r'Heat transport, $D\nabla^{2}T$ (W m$^{-2}$)')
@@ -173,19 +159,48 @@ def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
     return FormatAxis(fig, ax)
 
 
+def PlotEnergyDiagnostic(time, delta_E):
+    """"""
+    fig, ax = plt.subplots()
+    ax.axhline(0, linewidth=1.0, color='#777777')
+    ax.plot(time, delta_E, color='k', label=r'$\Delta F(t)$')
+    ax.axhline(np.mean(delta_E), color='k', linestyle='--',
+        linewidth=1.2, label=r'$\overline{\Delta F}$')
+    ax.set_xlabel(r'Time, $t$ (yr)')
+    ax.set_ylabel(r'Heat lost, $\Delta F$ (W m$^{-2}$)')
+    ax.legend(loc='upper left', fontsize=18)
+    return FormatAxis(fig, ax, minorgrid=False)
+
+
+###############################################################################
+###############################################################################
+
+def MasterFormatter():
+    """Set the default plotting styles for various MatPlotLib properties."""
+    mpl.rcParams['font.sans-serif'] = 'Calibri' #font for sans-serif style
+    mpl.rcParams['font.family'] = 'sans-serif' #choose sans-serif font style
+    mpl.rcParams['mathtext.fontset'] = 'custom' #allow customising maths font
+    mpl.rcParams['mathtext.rm'] = 'sans' #maths roman font in sans-serif format
+    mpl.rcParams['mathtext.it'] = 'sans:italic' #maths italic font
+    mpl.rcParams['mathtext.default'] = 'it' #maths in italic by default
+    mpl.rcParams['axes.titlesize'] = 20 #font-size of plot titles
+    mpl.rcParams['axes.labelsize'] = 18 #font-size of plot axes labels
+    mpl.rcParams['lines.linewidth'] = 1.5 #default plot linewidth
+    mpl.rcParams['savefig.format'] = 'pdf' #default save file format.
+    pass
+
+
 def FormatAxis(fig, ax, ticksize=18, tickpad=8, gridon=True, minorgrid=True):
     """Set the layout and formatting of the plot on axis ax belonging to figure
     object fig.
     
     --Args--
-    fig:        MatPlotLib figure object.
-    ax:         MatPlotLib axis object associated with fig.
-    
-    --Optional args--
-    ticksize:  int; font-size for axis tick labels.
-    tickpad:   int; padding for the axis tick labels (see MatPlotLib).
-    gridon:    boolean; whether to set the grid on or not.
-    minorgrid: boolean; whether to show minor grid-lines or not.
+    fig        : MatPlotLib figure object.
+    ax         : MatPlotLib axis object associated with fig.
+    (ticksize) : int, font-size for axis tick labels.
+    (tickpad)  : int, padding for the axis tick labels (see MatPlotLib).
+    (gridon)   : bool, whether to set the grid on or not.
+    (minorgrid): bool, whether to show minor grid-lines or not.
     """
     ax.minorticks_on()
     

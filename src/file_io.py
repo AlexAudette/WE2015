@@ -31,21 +31,22 @@ def SaveData(t, x, E, T, filename, datlocation='data_out'):
     pass
 
 
-def SaveFigures(figures, subdir):
+def SaveFigures(figures, subdir, ext='.pdf'):
     """Save several figures to plots\subdir with filenames given by their
     canvas window titles. Makes the directory if it does not exist and warns/
     aborts if about to over-write a file.
     
     --Args--
-    figures: list of MatPlotLib figure objects.
-    subdir:  string, name of sub-directory to which figures should be saved.
+    figures : list of MatPlotLib figure objects.
+    subdir  : string, name of sub-directory to which figures should be saved.
+    (ext)   : string, extension of type of file to save ('.pdf', '.svg', ...)
     """
     dirname = os.path.join(os.path.dirname(__file__), '..', 'plots', subdir)
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
     passall = False
     for f in figures:
-        filename_to_save = str(f.canvas.manager.window.windowTitle()) + '.pdf'
+        filename_to_save = str(f.canvas.manager.window.windowTitle()) + ext
         if passall:
             f.savefig(os.path.join(dirname, filename_to_save))
         else:

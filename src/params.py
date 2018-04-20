@@ -3,11 +3,11 @@ import numpy as np
 
 ##### CONSTANTS / PARAMETERS -- ORIGINAL BY WAGNER AND EISENMAN #####
 D = .6 #diffusivity for heat transport (W m^-2 K^-1)
-S1 = 338. #insolation seasonal dependence (W m^-2)
 A = 193. #OLR when T = 0 (W m^-2)
 B = 2.1 #OLR temperature dependence (W m^-2 K^-1)
 cw = 9.8 #ocean mixed-layer heat capacity (W yr m^-2 K^-1)
 S0 = 420. #insolation at equator (W m^-2)
+S1 = 0 #338. #insolation seasonal dependence (W m^-2)
 S2 = 240. #insolation spatial dependence (W m^-2)
 a0 = .7 #ice-free co-albedo at equator
 a2 = .1 #ice-free co-albedo spatial dependence
@@ -19,7 +19,6 @@ Lf = 9. #sea ice latent heat of fusion (W yr m^-3)
 cg = .01*cw #ghost layer heat capacity(W yr m^-2 K^-1)
 tau = 1.e-5 #ghost layer coupling timescale (yr)
 Tm = 0. #melting temperature of ice (deg C)
-RE = 6371.0E3 #mean radius of Earth [m]
 
 
 ##### NUMERICAL SOLUTION DEFAULTS #####
@@ -27,7 +26,7 @@ NX_LOWRES = 100 #number of x-grid points for low-resolution run
 NX_HIGHRES = 600 # "" "" for high-resolution run (default model takes 10min)
 NT_LOWRES = 1000 #number of time-steps for low-resolution run
 NT_HIGHRES = 1000 # "" "" for high-resolution run
-DURATION_LOWRES = 30 #no. of years to integrate forward (low resolution run)
+DURATION_LOWRES = 1000 #no. of years to integrate forward (low resolution run)
 DURATION_HIGHRES = 30 # "" "" (high resolution run)
 
 
@@ -43,3 +42,4 @@ HC_WIDTH = 0.05 # (dimensionless)
 DELTA_FB = 10. # Wm^-2
 FB_ICE = 4. # Wm^-2
 FB_X_WIDTH = 0.05 # (dimensionless)
+

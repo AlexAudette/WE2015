@@ -115,17 +115,10 @@ def Vary_Constant_Fb(quickly=False, lowres=True, times=[22, 73], savedata=True,
         label='Annual mean')
     ax.plot(fb, phi_i_winter, color='b', linewidth=1.5, label='Winter')
     ax.axvline(4.0, linestyle='--', linewidth=1.5, color='k')
-    ax.set_xlabel(r'Ocean upward heat flux, $F_\mathrm{b}$ (W m$^{-2}$)')
+    ax.set_xlabel(r'Ocean upward heat flux, $F_\mathrm{b}$ (Wm$^{-2}$)')
     ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)')
     ax.legend(loc='upper left', fontsize=14)
-    
-    ax2 = ax.twinx()
-    ax2.set_yticks(np.linspace(0, (2-np.sqrt(2))*np.pi*params.RE**2, 10))
-    ax2.set_yticklabels(np.rint((1-np.sin(np.pi*np.array(ax.get_yticks())/180))*2E-12*np.pi*params.RE**2).astype(int))
-    ax2.set_ylabel(r'Equivalent extent ($10^6$ km$^2$)')
-    
     fig, ax = pl.FormatAxis(fig, ax, minorgrid=False)
-    fig, ax2 = pl.FormatAxis(fig, ax2, minorgrid=False)
     
     fig.show()
     

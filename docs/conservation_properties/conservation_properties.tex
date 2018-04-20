@@ -1,0 +1,79 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper, left=2.2cm, top=1.5cm, right=2.2cm, bottom=1.5cm]{geometry}
+\usepackage{times, graphicx, amsmath, amsfonts, bm}
+\usepackage{url, multirow, color}
+\usepackage[hidelinks]{hyperref}
+\usepackage[font=small,labelfont=bf]{caption}
+
+\renewcommand{\floatpagefraction}{0.95}
+\renewcommand{\textfraction}{0}
+\renewcommand{\topfraction}{1}
+\renewcommand{\bottomfraction}{1}
+
+\newcommand{\overbar}[1]{\mkern 1.5mu\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu}
+
+
+\begin{document}
+\thispagestyle{empty}
+
+\title{Test for conservation of energy in WE2015 Model}
+\author{Jake Aylmer}
+\maketitle
+\large
+\begin{center}
+Reference: T. Wagner and I. Eisenman, 2015: \textit{How Climate Model Complexity Influences Sea Ice Stability}
+\end{center}
+\normalsize
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The model is described by the equation for the time evolution of the surface enthalpy $E$:
+\begin{equation}\label{eq:WE2015_2}
+\frac{\partial E}{\partial t} = aS - L + D\nabla^2T + F_\mathrm{b} + F,
+\end{equation}
+where $T$ is the surface temperature, $a$ is the coalbedo, $S$ is incoming shortwave radiation, $L$ is outgoing longwave radiation, $D\nabla^2T$ is meridional heat transport, $F_\mathrm{b}$ is basal heating from the ocean and $F$ is an imposed forcing ($=0$ by default).
+
+To eliminate the laplacian term, integrate (\ref{eq:WE2015_2}) over the spatial domain:
+\begin{equation}\label{eq:integrate_WE2015_2}
+\int_0^1\frac{\partial E}{\partial t}dx = \int_0^1\left(aS - L + D\nabla^2T + F_\mathrm{b} + F\right)dx.
+\end{equation}
+Assuming the default model setup of WE2015, the right hand side of (\ref{eq:integrate_WE2015_2}) can be simplified using
+\begin{equation}\label{eq:integrate_L}
+\int_0^1Ldx = \int_0^1\left(A+B\left(T-T_\mathrm{m}\right)\right)dx = A - BT_\mathrm{m} + B\int_0^1 Tdx
+\end{equation}
+\begin{equation}\label{eq:integrate_Fb}
+\int_0^1F_\mathrm{b}dx = F_\mathrm{b}
+\end{equation}
+\begin{equation}\label{eq:integrate_F}
+\int_0^1Fdx = F (=0)
+\end{equation}
+\begin{equation}\label{eq:integrate_Ddel2T}
+\int_0^1D\nabla^2Tdx = D\int_0^1\frac{\partial}{\partial x}\left((1-x^2)\frac{\partial}{\partial x}\right)Tdx = D\left[(1-x^2)\frac{\partial T}{\partial x}\right]_0^1 = 0
+\end{equation}
+where the boundary conditions have been used in the last term. Substituting equations (\ref{eq:integrate_L}), (\ref{eq:integrate_Fb}), (\ref{eq:integrate_F}) and (\ref{eq:integrate_Ddel2T}) into (\ref{eq:integrate_WE2015_2}):
+\begin{equation}
+\int_0^1\frac{\partial E}{\partial t}dx = \int_0^1aSdx - A + BT_\mathrm{m} - B\int_0^1Tdx + F_\mathrm{b} + F
+\end{equation}
+\begin{equation}\label{eq:diagnostic}
+\Rightarrow \delta F \equiv \int_0^1\frac{\partial E}{\partial t}dx - \int_0^1aSdx + B\int_0^1Tdx + A - BT_\mathrm{m} - F_\mathrm{b} - F = 0
+\end{equation}
+
+If the model is conserving energy, then $\delta F = 0$ $\forall t$. Numerically, $\delta F$, in its discrete form denoted $\Delta F$, can be calculated as follows, and for energy conservation $\Delta F \rightarrow 0$. Note that the model domain is split into $N$ grid boxes of width $\Delta x$ and the heat fluxes and prognostic quantities $E$ and $T$ are defined at grid box centres. A consistent discrete approximation to the integral over $T$ (for example) is then:
+\begin{equation}
+\int_0^1 Tdx \rightarrow \sum_{j=0}^{N-1}T_j\Delta x.
+\end{equation}
+For the time derivative, the centred difference approximation is used:
+\begin{equation}
+\frac{\partial E(x,t)}{\partial t} \rightarrow \frac{E_j(t+\Delta t) - E_j(t-\Delta t)}{2\Delta t}
+\end{equation}
+
+A routine was implemented to test this condition. The model was spun up for $30$ yr and the final year was used to calculate $\delta F$. The numerical time step used was $\Delta t = 10^{-3}$ yr $= 0.365$ days and the grid spacing $\Delta x = 10^{-3}$ ($N=1000$). The resulting time series of $\Delta F$ is shown in figure (\ref{fig:cons_test_plot}). The annual mean value of $\Delta F$ is $\overbar{\Delta F} = 1.1679$ W m$^{-2}$.
+
+\begin{figure}[b]
+\centering
+\includegraphics[width=\linewidth]{cons_test_plot.pdf}
+\caption{Time series of total heat loss $\Delta F$ (solid line) (equation (\ref{eq:diagnostic})) over a stable annual solution to WE2015. The numerical parameters used were $\Delta t = 10^{-3}$ yr $= 0.365$ days and $\Delta x = 10^{-3}$. The mean value is $\overbar{\Delta F} = 1.1679$ W m$^{-2}$ (dashed line). }
+\label{fig:cons_test_plot}
+\end{figure}
+
+\end{document}
