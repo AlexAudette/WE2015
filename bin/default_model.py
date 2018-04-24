@@ -4,7 +4,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src import params, model as WE, additions as JA, plotting as pl
 from src import file_io as filing
 
-def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False):
+def main(lowres=False, usesaved=False, custom=False, times=[22, 73],
+    savefigs=False):
     """Run the model and generate all plots for the standard model as described
     by Wagner and Eisenman (2015), i.e. with constant ocean mixed-layer depth
     and constant ocean basal heat-flux (selects the parameter values in
@@ -20,12 +21,20 @@ def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False):
               directory (will check before over-writing).
     """
     if usesaved:
-        t, x, E, T = filing.OpenData('DAT_constFb=%.1f_constHml=%.1f_' % (
-            params.Fb, params.HML_OCEAN) + ('LR' if lowres else 'HR') )
+        if custom:
+            t, x, E, T = filing.OpenData(
+                params.custom_filename + ('LR' if lowres else 'HR') )
+        else:
+            t, x, E, T = filing.OpenData('DAT_constFb=%.1f_constHml=%.1f_' % (
+                params.Fb, params.HML_OCEAN) + ('LR' if lowres else 'HR') )
     else:
         t, x, E, T = WE.Integration(lowres, varyHML=False, varyFB=False)
-        filing.SaveData(t, x, E, T, 'DAT_constFb=%.1f_constHML=%.1f_' % (
-            params.Fb, params.HML_OCEAN) + ('LR' if lowres else 'HR') )
+        if custom:
+            filing.SaveData(
+                t, x, E, T, params.custom_filename + ('LR' if lowres else 'HR'))
+        else:
+            filing.SaveData(t, x, E, T, 'DAT_constFb=%.1f_constHML=%.1f_' % (
+                params.Fb, params.HML_OCEAN) + ('LR' if lowres else 'HR') )
     
     xi_deg = np.degrees(np.arcsin(WE.xi_seasonal(E, x)))
     
@@ -133,4 +142,4 @@ if __name__ == '__main__':
             usesaved=('usesaved' in sys.argv))
     else:
         main(lowres=('lowres' in sys.argv), usesaved=('usesaved' in sys.argv),
-            savefigs=('savefigs' in sys.argv))
+            custom=('custom' in sys.argv), savefigs=('savefigs' in sys.argv))

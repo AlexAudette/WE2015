@@ -49,15 +49,19 @@ def EnergyDiagnostic(enth_prev, enth_current, enth_next, Temperature, x, t, dt):
     return dE
 
 
-def main(lowres=False, usesaved=False, savefigs=True):
+def main(lowres=False, usesaved=False, savefigs=True, custom=False):
     """For the standard model implementation by Wagner and Eisenman (WE2015),
     test whether it is conserving energy by calculating the integral over the
     hemisphere of their equation (2). By integrating, the D*laplacian(T) term
     drops out.
     """
     if usesaved:
-        t, x, E, T = filing.OpenData('DAT_constFb=%.1f_constHml=%.1f_' % (
-            params.Fb, params.HML_OCEAN) + ('LR' if lowres else 'HR') )
+        if custom:
+            t, x, E, T = filing.OpenData(
+                params.custom_filename + ('LR' if lowres else 'HR') )
+        else:
+            t, x, E, T = filing.OpenData(
+                'WE2015_DEFAULT_DATA_' + ('LR' if lowres else 'HR') )
     else:
         t, x, E, T = WE.Integration(lowres, varyHML=False, varyFB=False)
         filing.SaveData(t, x, E, T, 'DAT_constFb=%.1f_constHML=%.1f_' % (
@@ -93,4 +97,4 @@ def main(lowres=False, usesaved=False, savefigs=True):
 if __name__ == '__main__':
     pl.MasterFormatter()
     main(lowres=('lowres' in sys.argv), usesaved=('usesaved' in sys.argv),
-            savefigs=('savefigs' in sys.argv))
+            savefigs=('savefigs' in sys.argv), custom=('custom' in sys.argv))
