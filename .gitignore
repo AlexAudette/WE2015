@@ -7,9 +7,9 @@ docs/*/*.pdf
 *.pyc
 
 *.png
-*.svg
 *.bmp
 *.gif
+*.emf
 *.docx
 *.xmls
 
