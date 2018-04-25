@@ -14,7 +14,7 @@ from src import params, model as WE, additions as JA, plotting as pl
 from src import file_io as filing
 
 
-def EnergyDiagnostic(enth_prev, enth_current, enth_next, Temperature, x, t, dt):
+def EnergyDiagnostic(enth_prev, enth_current, enth_next, temperature, x, t, dt):
     """Calculate the residual energy stored in the system at time t, i.e.
     the integral of WE2015 eq. (2):
     
@@ -26,7 +26,7 @@ def EnergyDiagnostic(enth_prev, enth_current, enth_next, Temperature, x, t, dt):
     enth_prev    : NumPy array, shape (n_x, ); E(x) [W yr m^-2] at time t-dt [yr].
     enth_current : NumPy array, shape (n_x, ); E(x) [W yr m^-2] at time t [yr].
     enth_next    : NumPy array, shape (n_x, ); E(x) [W yr m^-2] at time t+dt [yr].
-    Temperature  : NumPy array, shape (n_x, ); T(x) [degC] at time t [yr].
+    temperature  : NumPy array, shape (n_x, ); T(x) [degC] at time t [yr].
     x            : NumPy array, shape (n_x, ); x-coordinates of cell centres.
     t            : float; current time [yr].
     dt           : float; time step [yr].
@@ -41,12 +41,37 @@ def EnergyDiagnostic(enth_prev, enth_current, enth_next, Temperature, x, t, dt):
     S = params.S0 - params.S1*x*np.cos(2*np.pi*t) - params.S2*x**2
     int_aS = np.sum(a*S)*dx
     
-    int_T = np.sum(Temperature)*dx
+    int_L = params.A + params.B*np.sum(temperature)*dx - params.B*params.Tm
     
-    dE = int_ddt_enth - int_aS + params.B*int_T + params.A -params.B*params.Tm\
-        - params.Fb - params.F
+    dE = int_ddt_enth - int_aS + int_L - params.Fb - params.F
     
     return dE
+
+
+def EnergyDiagnostic2(x, t, enthalpy, temperature):
+    """Alternative energy conservation diagnostic. Returns the total energy
+    stored at time t and net flux leaving the system at time t.
+    
+    --Args--
+    x           : NumPy array, x = sin(lat) coordinates.
+    t           : float, current time [yr]
+    enthalpy    : NumPy array, surface enthalpy profile at time t [W yr m^-2].
+    temperature : NumPy array, temperature profile at time t [degC].
+    """
+    
+    dx = x[1] - x[0] #grid spacing, assumed constant.
+    
+    E_stored_total = np.sum(enthalpy)*dx
+    
+    a =  WE.OceanAlbedo(x)*(enthalpy>=0) + params.ai*(enthalpy<0)
+    S = params.S0 - params.S1*x*np.cos(2*np.pi*t) - params.S2*x**2
+    int_aS = np.sum(a*S)*dx
+    
+    int_L = params.A + params.B*np.sum(temperature)*dx - params.B*params.Tm
+    
+    net_flux_leaving = int_L - int_aS - params.Fb - params.F
+    
+    return E_stored_total, net_flux_leaving
 
 
 def main(lowres=False, usesaved=False, savefigs=True, custom=False):
@@ -84,12 +109,23 @@ def main(lowres=False, usesaved=False, savefigs=True, custom=False):
     int_dE = np.sum(dE)*dt
     print "The integral of dE over time = %.4f W yr m^-2" % int_dE
     
-    fig, ax = pl.PlotEnergyDiagnostic(t[1:len(t)-1], dE)
-    fig.canvas.set_window_title('cons_test_dx=%.2E_dt=%.2E' % (dx, dt))
+    # Now use the second diagnostic:
+    E_stored = np.zeros(len(t))
+    F_leave = np.zeros(len(t))
+    for i in xrange(len(t)):
+        E_stored[i], F_leave[i] = EnergyDiagnostic2(x, t[i],
+            np.array([enth[i] for enth in E]),
+            np.array([temp[i] for temp in T]))
+    
+    fig1, ax1 = pl.PlotEnergyDiagnostic1(t[1:len(t)-1], dE)
+    fig1.canvas.set_window_title('cons_test_diag1_dx=%.2E_dt=%.2E' % (dx, dt))
+    fig2, ax2a, ax2b = pl.PlotEnergyDiagnostic2(t, E_stored, F_leave)
+    fig2.canvas.set_window_title('cons_test_diag2_dx=%.2E_dt=%.2E' % (dx, dt))
     if savefigs:
-        filing.SaveFigures([fig], 'conservation_tests')
-        filing.SaveFigures([fig], 'conservation_tests', '.svg')
-    fig.show()
+        filing.SaveFigures([fig1, fig2], 'conservation_tests')
+        filing.SaveFigures([fig1, fig2], 'conservation_tests', '.svg')
+    fig1.show()
+    fig2.show()
     
     pass
 

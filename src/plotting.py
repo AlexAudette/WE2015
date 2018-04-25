@@ -159,7 +159,7 @@ def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
     return FormatAxis(fig, ax)
 
 
-def PlotEnergyDiagnostic(time, delta_E):
+def PlotEnergyDiagnostic1(time, delta_E):
     """"""
     fig, ax = plt.subplots()
     ax.axhline(0, linewidth=1.0, color='#777777')
@@ -170,6 +170,29 @@ def PlotEnergyDiagnostic(time, delta_E):
     ax.set_ylabel(r'Heat lost, $\Delta F$ (W m$^{-2}$)')
     ax.legend(loc='upper left', fontsize=18)
     return FormatAxis(fig, ax, minorgrid=False)
+
+
+def PlotEnergyDiagnostic2(time, E_stored, F_leave):
+    """"""
+    fig, ax1 = plt.subplots()
+    l1 = ax1.plot(time, E_stored, color='purple', label=r'Net stored energy')
+    ax2 = ax1.twinx()
+    l2 = ax2.plot(time, F_leave, color='k', label=r'Net outgoing flux')
+    ax1.set_xlabel(r'Time, $t$ (yr)')
+    ax1.set_ylabel(r'Energy stored (W yr m$^{-2}$)')
+    ax2.set_ylabel(r'Net flux leaving system (W m$^{-2}$)')
+    ax2.axhline(0, linestyle='--', color='#777777')
+    ax1.scatter(time[np.argmax(E_stored)], max(E_stored), color='purple')
+    ax1.scatter(time[np.argmin(E_stored)], min(E_stored), color='purple')
+    ax1.axvline(time[np.argmax(E_stored)], color='grey', linestyle='--')
+    ax1.axvline(time[np.argmin(E_stored)], color='grey', linestyle='--')
+    ls = l1+l2
+    labs = [l.get_label() for l in ls]
+    ax1.legend(ls, labs, loc=0)
+    ax1.set_xlim([time[0], time[-1]])
+    fig, ax1 = FormatAxis(fig, ax1, gridon=False)
+    fig, ax2 = FormatAxis(fig, ax2, gridon=False)
+    return fig, ax1, ax2
 
 
 ###############################################################################
