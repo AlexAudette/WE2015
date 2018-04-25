@@ -7,7 +7,7 @@ A = 193.0 #OLR when T = 0 (W m^-2)
 B = 2.1 #OLR temperature dependence (W m^-2 K^-1)
 cw = 9.8 #ocean mixed-layer heat capacity (W yr m^-2 K^-1)
 S0 = 420.0 #insolation at equator (W m^-2)
-S1 = 338.0 #insolation seasonal dependence (W m^-2)
+S1 = 180#338.0 #insolation seasonal dependence (W m^-2)
 S2 = 240.0 #insolation spatial dependence (W m^-2)
 a0 = 0.7 #ice-free co-albedo at equator
 a2 = 0.1 #ice-free co-albedo spatial dependence
@@ -43,4 +43,4 @@ DELTA_FB = 10.0 # Wm^-2
 FB_ICE = 4.0 # Wm^-2
 FB_X_WIDTH = 0.05 # (dimensionless)
 
-custom_filename = 'WE2015_DEFAULT_DATA_'
+custom_filename = 'WE2015_DEFAULT_DATA_retune_S1=180_'
