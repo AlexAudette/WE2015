@@ -80,7 +80,7 @@ def main(lowres=False, usesaved=False, custom=False, times=[22, 73],
 
 
 def Vary_Constant_Fb(quickly=False, lowres=True, times=[22, 73], savedata=True,
-    usesaved=False):
+    usesaved=False, do_plot=True):
     """"""
     if quickly:
         fb = np.array([0.0, 4.0, 10.0])
@@ -117,19 +117,75 @@ def Vary_Constant_Fb(quickly=False, lowres=True, times=[22, 73], savedata=True,
                 '_quickly' if quickly else '')
             np.savetxt(os.path.join(datadir, filename + '.txt'), array_to_save)
     
-    fig, ax = plt.subplots()
-    ax.fill_between(fb, phi_i_summer, phi_i_winter, color=[.9,.9,.9]) 
-    ax.plot(fb, phi_i_summer, color='r', linewidth=1.5, label='Summer')
-    ax.plot(fb, phi_i_mean, color=[.5,.5,.5], linestyle=':', linewidth=1.5,
-        label='Annual mean')
-    ax.plot(fb, phi_i_winter, color='b', linewidth=1.5, label='Winter')
-    ax.axvline(4.0, linestyle='--', linewidth=1.5, color='k')
-    ax.set_xlabel(r'Ocean upward heat flux, $F_\mathrm{b}$ (Wm$^{-2}$)')
-    ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)')
-    ax.legend(loc='upper left', fontsize=14)
-    fig, ax = pl.FormatAxis(fig, ax, minorgrid=False)
+    if do_plot:
+        fig, ax = plt.subplots()
+        ax.fill_between(fb, phi_i_summer, phi_i_winter, color=[.9,.9,.9]) 
+        ax.plot(fb, phi_i_summer, color='r', linewidth=1.5, label='Summer')
+        ax.plot(fb, phi_i_mean, color=[.5,.5,.5], linestyle=':', linewidth=1.5,
+            label='Annual mean')
+        ax.plot(fb, phi_i_winter, color='b', linewidth=1.5, label='Winter')
+        ax.axvline(4.0, linestyle='--', linewidth=1.5, color='k')
+        ax.set_xlabel(r'Ocean upward heat flux, $F_\mathrm{b}$ (Wm$^{-2}$)')
+        ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ ($^\circ$)')
+        ax.legend(loc='upper left', fontsize=14)
+        fig, ax = pl.FormatAxis(fig, ax, minorgrid=False)
+        fig.show()
     
-    fig.show()
+    pass
+
+
+def Vary_Constant_Hml(quickly=False, lowres=True, times=[22, 73], savedata=True,
+    usesaved=False, do_plot=True):
+    """"""
+    if quickly:
+        Hml = np.array([20.0, 50.0, 100.0])
+    else:
+        Hml = np.arange(30.0, 100.001, 10.0)
+    
+    if usesaved:
+        datadir = os.path.join(os.path.dirname(__file__), '..', 'data_out')
+        filename = 'default_vary_const_Hml' + ('_lowres' if lowres else '') + (
+            '_quickly' if quickly else '')
+        array = np.genfromtxt(os.path.join(datadir, filename + '.txt'))
+        Hml = array[0]
+        phi_i_summer = array[1]
+        phi_i_mean = array[2]
+        phi_i_winter = array[3]
+    
+    else:
+        phi_i_winter = np.zeros(len(Hml))
+        phi_i_summer = np.zeros(len(Hml))
+        phi_i_mean = np.zeros(len(Hml))
+        for i in xrange(len(Hml)):
+            print "Calculating %i of %i..." % (i+1, len(Hml))
+            params.cw = Hml[i] * params.CwRho
+            t, x, E, T = WE.Integration(lowres, varyHML=False, varyFB=False)
+            phi_i_t = np.degrees(np.arcsin(WE.xi_seasonal(E, x)))
+            phi_i_winter[i] = phi_i_t[times[0]]
+            phi_i_summer[i] = phi_i_t[times[1]]
+            phi_i_mean[i] = np.mean(phi_i_t)
+        
+        if savedata:
+            array_to_save = np.array([Hml, phi_i_summer, phi_i_mean, phi_i_winter])
+            datadir = os.path.join(os.path.dirname(__file__), '..', 'data_out')
+            filename = 'default_vary_const_Hml' + ('_lowres' if lowres else '') + (
+                '_quickly' if quickly else '')
+            np.savetxt(os.path.join(datadir, filename + '.txt'), array_to_save)
+    
+    if do_plot:
+        fig, ax = plt.subplots()
+        ax.fill_between(Hml, phi_i_summer, phi_i_winter, color=[.9,.9,.9]) 
+        ax.plot(Hml, phi_i_summer, color='r', linewidth=1.5, label='Summer')
+        ax.plot(Hml, phi_i_mean, color=[.5,.5,.5], linestyle=':', linewidth=1.5,
+            label='Annual mean')
+        ax.plot(Hml, phi_i_winter, color='b', linewidth=1.5, label='Winter')
+        ax.axvline(75.0, linestyle='--', linewidth=1.5, color='k')
+        ax.set_xlabel(r'Mixed layer depth, $H_\mathrm{ml}$ (m)')
+        ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ ($^\circ$)')
+        ax.legend(loc='upper right', fontsize=14)
+        fig, ax = pl.FormatAxis(fig, ax, minorgrid=False)
+        
+        fig.show()
     
     pass
 
@@ -139,7 +195,11 @@ if __name__ == '__main__':
     if 'Vary_Constant_Fb' in sys.argv:
         Vary_Constant_Fb(quickly=('quickly' in sys.argv),
             lowres=('lowres' in sys.argv), savedata=('savedata' in sys.argv),
-            usesaved=('usesaved' in sys.argv))
+            usesaved=('usesaved' in sys.argv), do_plot=('do_plot' in sys.argv))
+    elif 'Vary_Constant_Hml' in sys.argv:
+        Vary_Constant_Hml(quickly=('quickly' in sys.argv),
+            lowres=('lowres' in sys.argv), savedata=('savedata' in sys.argv),
+            usesaved=('usesaved' in sys.argv), do_plot=('do_plot' in sys.argv))
     else:
         main(lowres=('lowres' in sys.argv), usesaved=('usesaved' in sys.argv),
             custom=('custom' in sys.argv), savefigs=('savefigs' in sys.argv))

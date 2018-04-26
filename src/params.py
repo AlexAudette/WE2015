@@ -26,7 +26,7 @@ NX_LOWRES = 100 #number of x-grid points for low-resolution run
 NX_HIGHRES = 600 # "" "" for high-resolution run (default model takes 10min)
 NT_LOWRES = 1000 #number of time-steps for low-resolution run
 NT_HIGHRES = 1000 # "" "" for high-resolution run
-DURATION_LOWRES = 1000 #no. of years to integrate forward (low resolution run)
+DURATION_LOWRES = 30 #no. of years to integrate forward (low resolution run)
 DURATION_HIGHRES = 30 # "" "" (high resolution run)
 
 
