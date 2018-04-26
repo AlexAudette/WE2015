@@ -43,4 +43,4 @@ DELTA_FB = 10.0 # Wm^-2
 FB_ICE = 4.0 # Wm^-2
 FB_X_WIDTH = 0.05 # (dimensionless)
 
-custom_filename = 'WE2015_DEFAULT_DATA_retune_S1=180_'
+custom_filename = 'WE2015_DEFAULT_DATA_'

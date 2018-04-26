@@ -43,7 +43,7 @@ def PlotIceEdge(time, latitude, label='', col='k', details=''):
     fig, ax = plt.subplots()
     ax.plot(time, latitude, color=col, label=label)
     ax.set_xlabel(r'Time, $t$ (yr)')
-    ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)')
+    ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ ($^\circ$)')
     title = r'Seasonal cycle of ice-edge latitude $\phi_\mathrm{i}$'
     ax.set_title(title + '\n' + details, y=1.02)
     ax.set_xlim([0, 1])
@@ -85,7 +85,7 @@ def PlotContour(time, latitude, variable, type='E'):
         ax.axhline(y, color=[1,1,1], linewidth=0.5)
     
     ax.set_xlabel(r'Time, $t$ (yr)')
-    ax.set_ylabel(r'Latitude, $\phi$ (deg)')
+    ax.set_ylabel(r'Latitude, $\phi$ ($^\circ$)')
     ax.set_xlim([0,1])
     ax.set_ylim([0,90])
     fig, ax = FormatAxis(fig, ax, minorgrid=False)
@@ -100,7 +100,7 @@ def PlotContourWS(time, latitude, variable, time_index, type='E', title=''):
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
     ax.plot(latitude, variable[:,time_index[1]], color='k',
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
-    ax.set_xlabel(r'Latitude, $\phi$ (deg)')
+    ax.set_xlabel(r'Latitude, $\phi$ ($^\circ$)')
     if type == 'E':
         ax.set_ylabel(r'Surface enthalpy, $E$ (W yr m$^{-2}$)')
         fig.canvas.set_window_title('E(x,t) profiles')
@@ -125,14 +125,14 @@ def PlotIceThickness(time, latitude, enthalpy, time_index, title='', col='k'):
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
     ax.plot(latitude, icethickness_summer, color=col,
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
-    ax.set_xlabel(r'Latitude, $\phi$ (deg)')
-    ax.set_ylabel(r'Ice thickness, $h$ (m)')
+    ax.set_xlabel(r'Latitude, $\phi$ ($^\circ$)')
+    ax.set_ylabel(r'Ice thickness, $H_\mathrm{i}$ (m)')
     ax.set_title(title, fontsize=17, y=1.02)
-    ax.set_xlim([0, 90])
+    ax.set_xlim([50, 90])
     ax.set_ylim(ymin=0)
     ax.legend(loc=0)
     fig.canvas.set_window_title('Ice thickness')
-    return FormatAxis(fig, ax)
+    return FormatAxis(fig, ax, minorgrid=False)
 
 
 def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
@@ -149,7 +149,7 @@ def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
         label=r'Winter ($t=%.2f$ yr)' % time[time_index[0]])
     ax.plot(latitude, heat_transport[:,time_index[1]], color='k',
         label=r'Summer ($t=%.2f$ yr)' % time[time_index[1]], linestyle='--')
-    ax.set_xlabel(r'Latitude, $\phi$ (deg)')
+    ax.set_xlabel(r'Latitude, $\phi$ ($^\circ$)')
     ax.set_ylabel(r'Heat transport, $D\nabla^{2}T$ (W m$^{-2}$)')
     ax.set_title(title, fontsize=17, y=1.02)
     ax.set_xlim([0, 90])
