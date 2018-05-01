@@ -35,12 +35,12 @@ DURATION_HIGHRES = 30 # "" "" (high resolution run)
 HML_OCEAN = 75.0 # (m)
 HML_ICE = 40.0 # (m)
 CwRho = cw/HML_OCEAN #mixed-layer heat-capacity per unit volume (W yr m^-3 K^-1)
-XAPFZ = 0.5*np.sqrt(2.0)#.5*np.sqrt(3.) # = sin(60 deg)
+XAPFZ = .5*np.sqrt(3.) # = sin(60 deg)
 HC_WIDTH = 0.05 # (dimensionless)
 
 #---For the variable basal heat flux (erf(x) form):
 DELTA_FB = 10.0 # Wm^-2
 FB_ICE = 4.0 # Wm^-2
-FB_X_WIDTH = 0.05 # (dimensionless)
+FB_X_WIDTH = 0.02 # (dimensionless)
 
 custom_filename = 'WE2015_DEFAULT_DATA_'
