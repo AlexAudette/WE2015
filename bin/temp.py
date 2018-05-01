@@ -23,8 +23,8 @@ def main():
     fig, ax = plt.subplots()
     ax.plot(np.degrees(np.arcsin(x)), y, color='k', linewidth=1.5,
         label=r'$F_\mathrm{b}(\phi)$')
-    ax.set_xlabel(r'$\phi$ (deg)', fontsize=18)
-    ax.set_ylabel(r'Ocean basal heat-flux, $F_\mathrm{b}$ (Wm$^{-2}$)',
+    ax.set_xlabel(r'$\phi$ ($^\circ$)', fontsize=18)
+    ax.set_ylabel(r'Ocean upward heat flux, $F_\mathrm{b}$ (W m$^{-2}$)',
         fontsize=18)
     ax.axvline(np.degrees(np.arcsin(xi[0])), linestyle='--', color='k',
         label=r'$\phi=\phi_\mathrm{i}$')
@@ -44,8 +44,8 @@ def main2():
     fig, ax = plt.subplots()
     ax.plot(np.degrees(np.arcsin(x)), y, color='k', linewidth=1.5,
         label=r'$H_\mathrm{ml}(\phi)$')
-    ax.set_xlabel(r'$\phi$ (deg)', fontsize=18)
-    ax.set_ylabel(r'Mixed-layer depth, $H_\mathrm{ml}$ (m)',
+    ax.set_xlabel(r'$\phi$ ($^\circ$)', fontsize=18)
+    ax.set_ylabel(r'Mixed layer depth, $H_\mathrm{ml}$ (m)',
         fontsize=18)
     ax.set_xlim([0,90])
     ax.set_ylim([0,10])
@@ -56,6 +56,25 @@ def main2():
 
 
 def main3():
+    """Plot the old non-interactive form of F_b."""
+    x = np.arange(0.0, 1.0001, 0.001)
+    y = JA.BasalFlux(x)
+    
+    fig, ax = plt.subplots()
+    ax.plot(np.degrees(np.arcsin(x)), y, color='k', linewidth=1.5,
+        label=r'$F_\mathrm{b}(\phi)$')
+    ax.set_xlabel(r'Latitude, $\phi$ ($^\circ$)', fontsize=18)
+    ax.set_ylabel(r'Ocean upward heat flux, $F_\mathrm{b}$ (W m$^{-2}$)',
+        fontsize=18)
+    ax.set_xlim([0,90])
+    ax.set_ylim([0,16])
+    ax.set_title(r'Old form of $F_\mathrm{b}$', fontsize=18, y=1.02)
+    fig, ax = pl.FormatAxis(fig, ax, minorgrid=False)
+    fig.show()
+    pass
+
+
+def main4():
     """Animate the form of F_b with (crude) seasonal cycle."""
     
     ### Import data for ice-edge latitude:
@@ -72,8 +91,8 @@ def main3():
     fig, (ax1, ax2) = plt.subplots(1,2)
     
     ### Fixed plot elements:
-    ax1.set_xlabel(r'$\phi$ (deg)')
-    ax1.set_ylabel(r'$F_\mathrm{b}(x,t)$ (Wm$^{-2}$)')
+    ax1.set_xlabel(r'$\phi$ ($^\circ$)')
+    ax1.set_ylabel(r'$F_\mathrm{b}(x,t)$ (W m$^{-2}$)')
     ax1.set_xlim([0,90])
     ax1.set_ylim([0,10])
     fig, ax1 = pl.FormatAxis(fig, ax1)
@@ -81,7 +100,7 @@ def main3():
     ax2.plot(tdef, xideg_def, color='grey', linewidth=1.5)
     ax2.plot(t, xdeg, color='k', linewidth=1.5)
     ax2.set_xlabel(r'Time, $t$ (yr)')
-    ax2.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ (deg)')
+    ax2.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ ($^\circ$)')
     ax2.set_title(r'Seasonal ice-edge latitude')
     ax2.set_xlim([0,1])
     ax2.set_ylim([0,90])
@@ -115,5 +134,7 @@ if __name__ == '__main__':
         main2()
     elif "3" in sys.argv:
         main3()
+    elif "4" in sys.argv:
+        main4()
     else:
         main()

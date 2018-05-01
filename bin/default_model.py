@@ -125,7 +125,7 @@ def Vary_Constant_Fb(quickly=False, lowres=True, times=[22, 73], savedata=True,
             label='Annual mean')
         ax.plot(fb, phi_i_winter, color='b', linewidth=1.5, label='Winter')
         ax.axvline(4.0, linestyle='--', linewidth=1.5, color='k')
-        ax.set_xlabel(r'Ocean upward heat flux, $F_\mathrm{b}$ (Wm$^{-2}$)')
+        ax.set_xlabel(r'Ocean upward heat flux, $F_\mathrm{b}$ (W m$^{-2}$)')
         ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ ($^\circ$)')
         ax.legend(loc='upper left', fontsize=14)
         fig, ax = pl.FormatAxis(fig, ax, minorgrid=False)
@@ -140,7 +140,7 @@ def Vary_Constant_Hml(quickly=False, lowres=True, times=[22, 73], savedata=True,
     if quickly:
         Hml = np.array([20.0, 50.0, 100.0])
     else:
-        Hml = np.arange(30.0, 100.001, 10.0)
+        Hml = np.arange(30.0, 100.001, 5.0)
     
     if usesaved:
         datadir = os.path.join(os.path.dirname(__file__), '..', 'data_out')
@@ -182,6 +182,7 @@ def Vary_Constant_Hml(quickly=False, lowres=True, times=[22, 73], savedata=True,
         ax.axvline(75.0, linestyle='--', linewidth=1.5, color='k')
         ax.set_xlabel(r'Mixed layer depth, $H_\mathrm{ml}$ (m)')
         ax.set_ylabel(r'Ice-edge latitude, $\phi_\mathrm{i}$ ($^\circ$)')
+        ax.set_ylim([45,90])
         ax.legend(loc='upper right', fontsize=14)
         fig, ax = pl.FormatAxis(fig, ax, minorgrid=False)
         
