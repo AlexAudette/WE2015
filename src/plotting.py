@@ -1,4 +1,5 @@
 from __future__ import division
+import sys, os
 import params, model
 import numpy as np
 import matplotlib as mpl
@@ -49,7 +50,8 @@ def PlotIceEdge(time, latitude, label='', col='k', details=''):
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 90])
     fig.canvas.set_window_title('Ice-edge latitude')
-    return FormatAxis(fig, ax)
+    fig.tight_layout()
+    return fig, ax
 
 
 def PlotContour(time, latitude, variable, type='E'):
@@ -88,7 +90,7 @@ def PlotContour(time, latitude, variable, type='E'):
     ax.set_ylabel(r'Latitude, $\phi$ ($^\circ$)')
     ax.set_xlim([0,1])
     ax.set_ylim([0,90])
-    fig, ax = FormatAxis(fig, ax, minorgrid=False)
+    fig.tight_layout()
     return fig, ax
 
 
@@ -109,8 +111,9 @@ def PlotContourWS(time, latitude, variable, time_index, type='E', title=''):
         fig.canvas.set_window_title('T(x,t) profiles')
     ax.set_title(title, fontsize=17, y=1.02)
     ax.set_xlim([0,90])
-    ax.legend(loc=0)
-    return FormatAxis(fig, ax)
+    ax.legend()
+    fig.tight_layout()
+    return fig, ax
 
 
 def PlotIceThickness(time, latitude, enthalpy, time_index, title='', col='k'):
@@ -132,7 +135,8 @@ def PlotIceThickness(time, latitude, enthalpy, time_index, title='', col='k'):
     ax.set_ylim(ymin=0)
     ax.legend(loc=0)
     fig.canvas.set_window_title('Ice thickness')
-    return FormatAxis(fig, ax, minorgrid=False)
+    fig.tight_layout()
+    return fig, ax
 
 
 def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
@@ -156,7 +160,8 @@ def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
     ax.set_ylim([-200, 200])
     ax.legend(loc='upper left')
     fig.canvas.set_window_title('Heat transport')
-    return FormatAxis(fig, ax)
+    fig.tight_layout()
+    return fig, ax
 
 
 def PlotEnergyDiagnostic1(time, delta_E):
@@ -169,7 +174,8 @@ def PlotEnergyDiagnostic1(time, delta_E):
     ax.set_xlabel(r'Time, $t$ (yr)')
     ax.set_ylabel(r'Heat lost, $\Delta F$ (W m$^{-2}$)')
     ax.legend(loc='upper left', fontsize=18)
-    return FormatAxis(fig, ax, minorgrid=False)
+    fig.tight_layout()
+    return fig, ax
 
 
 def PlotEnergyDiagnostic2(time, E_stored, F_leave):
@@ -188,52 +194,64 @@ def PlotEnergyDiagnostic2(time, E_stored, F_leave):
     ax1.axvline(time[np.argmin(E_stored)], color='grey', linestyle='--')
     ls = l1+l2
     labs = [l.get_label() for l in ls]
-    ax1.legend(ls, labs, loc=0)
+    ax1.legend(ls, labs)
     ax1.set_xlim([time[0], time[-1]])
-    fig, ax1 = FormatAxis(fig, ax1, gridon=False)
-    fig, ax2 = FormatAxis(fig, ax2, gridon=False)
+    fig.tight_layout()
     return fig, ax1, ax2
 
 
 ###############################################################################
 ###############################################################################
 
-def MasterFormatter():
-    """Set the default plotting styles for various MatPlotLib properties."""
-    mpl.rcParams['font.sans-serif'] = 'Calibri' #font for sans-serif style
-    mpl.rcParams['font.family'] = 'sans-serif' #choose sans-serif font style
-    mpl.rcParams['mathtext.fontset'] = 'custom' #allow customising maths font
-    mpl.rcParams['mathtext.rm'] = 'sans' #maths roman font in sans-serif format
-    mpl.rcParams['mathtext.it'] = 'sans:italic' #maths italic font
-    mpl.rcParams['mathtext.default'] = 'it' #maths in italic by default
-    mpl.rcParams['axes.titlesize'] = 20 #font-size of plot titles
-    mpl.rcParams['axes.labelsize'] = 18 #font-size of plot axes labels
-    mpl.rcParams['lines.linewidth'] = 1.5 #default plot linewidth
-    mpl.rcParams['savefig.format'] = 'pdf' #default save file format.
-    pass
-
-
-def FormatAxis(fig, ax, ticksize=18, tickpad=8, gridon=True, minorgrid=True):
-    """Set the layout and formatting of the plot on axis ax belonging to figure
-    object fig.
-    
-    --Args--
-    fig        : MatPlotLib figure object.
-    ax         : MatPlotLib axis object associated with fig.
-    (ticksize) : int, font-size for axis tick labels.
-    (tickpad)  : int, padding for the axis tick labels (see MatPlotLib).
-    (gridon)   : bool, whether to set the grid on or not.
-    (minorgrid): bool, whether to show minor grid-lines or not.
+def SetRCParams():
+    """Set default MatPlotLib formatting styles (rcParams) which will be set
+    automatically for any plotting method.
     """
-    ax.minorticks_on()
+    # FONTS (NOTE: SOME OF THESE ARE SET-ORDER DEPENDENT):
+    mpl.rcParams['font.sans-serif'] = 'Calibri' #Set font for sans-serif style
+    mpl.rcParams['font.family'] = 'sans-serif' #Choose sans-serif font style
+    mpl.rcParams['mathtext.fontset'] = 'custom' #Allow customising maths fonts
+    mpl.rcParams['mathtext.rm'] = 'sans' #Maths roman font in sans-serif format
+    mpl.rcParams['mathtext.it'] = 'sans:italic' #Maths italic font
+    mpl.rcParams['mathtext.default'] = 'it' #Maths in italic by default
     
-    ax.tick_params(axis='both', which='both', direction='out')
-    ax.tick_params(axis='both', which='major', labelsize=ticksize, pad=tickpad)
+    # PLOT ELEMENT PROPERTIES:
+    mpl.rcParams['lines.linewidth'] = 1.5 #Default plot linewidth (thickness)
+    mpl.rcParams['lines.markersize'] = 4 #Default marker size (pts)
+    mpl.rcParams['lines.markeredgewidth'] = 0 #Default marker edge width (pts)
     
-    if gridon:
-        if minorgrid:
-            ax.grid(which='minor', linestyle='-', color=[.92, .92, .92])
-        ax.grid(which='major', linestyle='-', color=[.75, .75, .75])
-    ax.set_axisbelow(True)
-    fig.tight_layout()
-    return fig, ax
+    # LABEL PROPERTIES:
+    mpl.rcParams['axes.titlesize'] = 20 #Title font size (pts)
+    mpl.rcParams['axes.labelsize'] = 19 #Axis label font sizes (pts)
+    mpl.rcParams['xtick.labelsize'] = 18 #X-tick label font size (pts)
+    mpl.rcParams['ytick.labelsize'] = 18 #Y-tick label font size (pts)
+    
+    # GRID PROPERTIES:
+    mpl.rcParams['axes.grid'] = True #Major grid on by default
+    mpl.rcParams['grid.color'] = 'bfbfbf' #Grid line color
+    mpl.rcParams['xtick.minor.visible'] = True #X-minor ticks on by default
+    mpl.rcParams['ytick.minor.visible'] = True #Y-minor ticks on by default
+    mpl.rcParams['xtick.major.pad'] = 8 #X-major tick padding
+    mpl.rcParams['ytick.major.pad'] = 8 #Y-major tick padding
+    mpl.rcParams['axes.axisbelow'] = True
+    
+    # LEGEND PROPERTIES:
+    mpl.rcParams['legend.fancybox'] = False #Whether to use a rounded box
+    mpl.rcParams['legend.fontsize'] = 16 #Legend label font size (pts)
+    mpl.rcParams['legend.framealpha'] = 1 #Legend alpha (transparency)
+    mpl.rcParams['legend.edgecolor'] = '#000000' #
+    
+    # GENERAL FIGURE PROPERTIES
+    mpl.rcParams['figure.figsize'] = 8, 6 #Figure window size (inches)
+    mpl.rcParams['savefig.format'] = 'pdf' #Default format to save to
+    
+    # ANIMATION PARAMETERS
+    if os.path.isdir('N:\\ffmpeg\\bin'): #path to ffmpeg
+        mpl.rcParams['animation.ffmpeg_path'] = 'N:\\ffmpeg\\bin\\ffmpeg.exe'
+    elif os.path.isdir('C:\\Program Files (x86)\Ffmpeg For Audacity\\'):
+        mpl.rcParams['animation.ffmpeg_path'] = \
+            'C:\\Program Files (x86)\Ffmpeg For Audacity\\ffmpeg.exe'
+    else:
+        print "WARNING: FFMPEG not found."
+    
+    pass

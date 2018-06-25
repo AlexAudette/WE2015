@@ -192,7 +192,7 @@ def Vary_Constant_Hml(quickly=False, lowres=True, times=[22, 73], savedata=True,
 
 
 if __name__ == '__main__':
-    pl.MasterFormatter()
+    pl.SetRCParams()
     if 'Vary_Constant_Fb' in sys.argv:
         Vary_Constant_Fb(quickly=('quickly' in sys.argv),
             lowres=('lowres' in sys.argv), savedata=('savedata' in sys.argv),

@@ -88,7 +88,7 @@ def main(lowres=False, usesaved=False, times=[22, 73], savefigs=False,
 
 
 if __name__ == '__main__':
-    pl.MasterFormatter()
+    pl.SetRCParams()
     main(lowres=('lowres' in sys.argv), usesaved=('usesaved' in sys.argv),
         savefigs=('savefigs' in sys.argv), interactive=[
         'interactiveFb' in sys.argv, 'interactiveHml' in sys.argv])
