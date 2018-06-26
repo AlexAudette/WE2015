@@ -164,6 +164,30 @@ def PlotHeatTransport(time, X, T, time_index, plotdeg=True, title=''):
     return fig, ax
 
 
+def PlotSensitivity(var, xi_s, xi_m, xi_w, type='Hml', xlim=[40,100],
+                    ylim=[45,90]):
+    """"""
+    phi_s = np.degrees(np.arcsin(xi_s))
+    phi_m = np.degrees(np.arcsin(xi_m))
+    phi_w = np.degrees(np.arcsin(xi_w))
+    fig, ax = plt.subplots()
+    ax.fill_between(var, phi_w, phi_s, color='grey', alpha=0.25)
+    ax.plot(var, phi_s, color='r', label=r'Summer')
+    ax.plot(var, phi_m, color='grey', linestyle=':', label=r'Annual mean')
+    ax.plot(var, phi_w, color='b', label=r'Winter')
+    ax.axvline(75, color='k', linestyle='--')
+    if type == 'Hml':
+        ax.set_xlabel('$H_\mathrm{ml}$ (m)')
+    else:
+        ax.set_xlabel('$F_\mathrm{b}$ (W m$^{-2}$)')
+    ax.set_ylabel('Ice edge latitude, $\phi_\mathrm{i}$ ($^\circ$)')
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    ax.legend(loc='best', fontsize=15)
+    fig.tight_layout()
+    return fig, ax
+
+
 def PlotEnergyDiagnostic1(time, delta_E):
     """"""
     fig, ax = plt.subplots()

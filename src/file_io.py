@@ -28,7 +28,38 @@ def SaveData(t, x, E, T, filename, datlocation='data_out'):
     np.savetxt(os.path.join(datadir, filename + '_E.txt'), E_array_to_save)
     print "Saving data to: %s" % filename+'_T.txt'
     np.savetxt(os.path.join(datadir, filename + '_T.txt'), T)
-    pass
+
+
+def OpenSensitivityData(filename='Hml_sensitivity.txt'):
+    filename += '' if filename.endswith('.txt') else '.txt'
+    print "Opening data: data_out\\%s" % filename
+    datadir = os.path.join(os.path.dirname(__file__), '..', 'data_out')
+    data = np.genfromtxt(os.path.join(datadir, filename))
+    var = data[0]
+    xis = data[1]
+    xim = data[2]
+    xiw = data[3]
+    return var, xis, xim, xiw
+
+
+def SaveSensitivityData(var, xis, xim, xiw, filename='Hml_sensitivity.txt'):
+    """"""
+    filename += '' if filename.endswith('.txt') else '.txt'
+    datadir = os.path.join(os.path.dirname(__file__), '..', 'data_out')
+    print "Saving data to: data_out\\%s" % filename
+    array_to_save = np.array([var, xis, xim, xiw])
+    np.savetxt(os.path.join(datadir, filename), array_to_save)
+
+def CombineData(file1, file2):
+    """"""
+    var1, xis1, xim1, xiw1 = OpenSensitivityData(file1)
+    var2, xis2, xim2, xiw2 = OpenSensitivityData(file2)
+    var = np.append(var1, var2)
+    xis = np.append(xis1, xis2)
+    xim = np.append(xim1, xim2)
+    xiw = np.append(xiw1, xiw2)
+    p = var.argsort()
+    return var[p], xis[p], xim[p], xiw[p]
 
 
 def SaveFigures(figures, subdir, ext='.pdf'):
@@ -61,4 +92,3 @@ def SaveFigures(figures, subdir, ext='.pdf'):
                 passall = check=='Y-ALL'
             else:
                 f.savefig(os.path.join(dirname, filename_to_save))
-    pass
