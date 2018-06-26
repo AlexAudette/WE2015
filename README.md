@@ -11,5 +11,5 @@ which can be found [here](https://journals.ametsoc.org/doi/abs/10.1175/JCLI-D-14
 
 ## Dependencies
   * Python 2.7.14
-  * MatPlotLib 1.4.3
+  * MatPlotLib 2.2.2
   * NumPy 1.14.3
