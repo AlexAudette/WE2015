@@ -175,11 +175,12 @@ def PlotSensitivity(var, xi_s, xi_m, xi_w, type='Hml', xlim=[40,100],
     ax.plot(var, phi_s, color='r', label=r'Summer')
     ax.plot(var, phi_m, color='grey', linestyle=':', label=r'Annual mean')
     ax.plot(var, phi_w, color='b', label=r'Winter')
-    ax.axvline(75, color='k', linestyle='--')
     if type == 'Hml':
         ax.set_xlabel('$H_\mathrm{ml}$ (m)')
+        ax.axvline(75, color='k', linestyle='--')
     else:
         ax.set_xlabel('$F_\mathrm{b}$ (W m$^{-2}$)')
+        ax.axvline(4, color='k', linestyle='--')
     ax.set_ylabel('Ice edge latitude, $\phi_\mathrm{i}$ ($^\circ$)')
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
